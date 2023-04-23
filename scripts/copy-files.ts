@@ -4,10 +4,8 @@ import { fileURLToPath } from 'url'
 
 // relative to scripts directory
 const destinations = [
-  ['../LICENSE', '../packages/test/LICENSE'],
-  ['../README.md', '../packages/test/README.md'],
-  ['../LICENSE', '../packages/utils/LICENSE'],
-  ['../README.md', '../packages/utils/README.md'],
+  ['../LICENSE', '../packages/core/LICENSE'],
+  ['../README.md', '../packages/core/README.md'],
 ]
 
 const _filename = fileURLToPath(import.meta.url)

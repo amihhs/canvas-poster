@@ -1,27 +1,26 @@
 {
-  "name": "@amihhs/monorepo-template-utils",
+  "name": "@amihhs/canvas-poster",
   "type": "module",
-  "version": "1.0.0-beta.1",
-  "description": "monorepo-template utils package",
+  "version": "0.0.1",
+  "description": "使用canvas生成海报",
   "author": {
     "name": "amihhs",
     "email": "amihhs369@gmail.com",
     "url": "https://github.com/amihhs"
   },
   "license": "MIT",
-  "homepage": "https://github.com/amihhs/monorepo-template",
+  "homepage": "https://github.com/amihhs/canvas-poster",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/amihhs/monorepo-template.git",
+    "url": "git+https://github.com/amihhs/canvas-poster.git",
     "directory": "packages/utils"
   },
   "bugs": {
-    "url": "https://github.com/amihhs/monorepo-template"
+    "url": "https://github.com/amihhs/canvas-poster"
   },
   "keywords": [
-    "template",
-    "monorepo",
-    "monorepo-template"
+    "canvas",
+    "poster"
   ],
   "exports": {
     ".": {
