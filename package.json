@@ -13,6 +13,7 @@
   "scripts": {
     "build": "rimraf packages/*/dist && esno scripts/copy-files.ts && pnpm -r run build",
     "release": "bumpp -r",
+    "dev": "pnpm -r run stub --filter packages/*",
     "play": "pnpm -r run dev --filter playground",
     "test": "vitest",
     "lint": "eslint .",
