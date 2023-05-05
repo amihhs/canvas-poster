@@ -1,7 +1,7 @@
 {
   "name": "@amihhs/canvas-poster",
   "type": "module",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "使用canvas生成海报",
   "author": {
     "name": "amihhs",
