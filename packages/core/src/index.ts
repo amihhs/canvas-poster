@@ -14,6 +14,7 @@ import {
 } from './types'
 import { isFunction } from './utils'
 
+export * from './types'
 export class Poster {
   canvas: HTMLCanvasElement
   context: CanvasRenderingContext2D

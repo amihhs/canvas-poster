@@ -11,10 +11,10 @@
     "url": "https://github.com/amihhs"
   },
   "scripts": {
-    "build": "rimraf packages/*/dist && esno scripts/copy-files.ts && pnpm -r run build",
+    "build": "rimraf packages/*/dist && esno scripts/copy-files.ts && pnpm -r --filter=./packages/* run build ",
     "release": "bumpp -r",
-    "dev": "pnpm -r run stub --filter packages/*",
-    "play": "pnpm -r run dev --filter playground",
+    "dev": "pnpm -r --filter=./packages/* run stub",
+    "play": "pnpm -r --filter=playground run dev ",
     "test": "vitest",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
