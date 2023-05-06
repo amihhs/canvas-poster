@@ -41,7 +41,4 @@ export default defineConfig({
     transformerDirectives(),
     transformerVariantGroup(),
   ],
-  rules: [
-    [/^grid-rows-(\d+)-(.+)$/, ([, d, n]) => ({ 'grid-template-rows': `repeat(${d}, minmax(0, ${isNaN(Number(n)) ? n : `${Number(n) / 4}rem`}))` })],
-  ],
 })

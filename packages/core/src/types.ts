@@ -1,3 +1,9 @@
+export enum PosterType {
+  image = 'image',
+  text = 'text',
+  textEllipsis = 'textEllipsis', // 截取文本绘制
+  rect = 'rect',
+}
 export interface PosterConfig {
   // default: 320
   width?: number
@@ -6,6 +12,7 @@ export interface PosterConfig {
   // default: 2
   scale?: number
   content?: PosterJson[]
+  proxy?: (src: string) => Promise<string>
 }
 export interface PosterContext {
   width: number
@@ -13,13 +20,10 @@ export interface PosterContext {
   dpi: number
   canvasContext: CanvasRenderingContext2D
   defaultFont: Required<FontConfig>
+  font: (config: FontConfig) => string
+  getTextWidth: (text: string, font: string, letterSpacing?: number) => number
 }
-export enum PosterType {
-  image = 'image',
-  text = 'text',
-  textEllipsis = 'textEllipsis', // 截取文本绘制
-  rect = 'rect',
-}
+
 export type PosterGenerateDrawFn = (context: PosterContext) => Promise<PosterJson>
 export interface FontConfig {
   // default: 14
@@ -46,11 +50,24 @@ export interface PosterBaseJson {
   width: number
   height: number
 }
-export interface PosterBaseRect {
+/**
+ * box-radius
+ */
+export interface RadiusConfig {
   // 圆角半径， default: 0
   boxRadius?: number
 }
-export interface PosterRect extends PosterBaseJson, PosterBaseRect {
+/**
+ * box-shadow & text-shadow
+ */
+export interface ShadowConfig {
+  shadowColor?: string
+  shadowBlur?: number
+  shadowOffsetX?: number
+  shadowOffsetY?: number
+}
+export interface PosterBaseRect extends RadiusConfig, ShadowConfig, PosterBaseJson {}
+export interface PosterRect extends PosterBaseRect {
   type: PosterType.rect
   // default: none
   bgColor?: string | CanvasGradient | CanvasPattern
@@ -60,16 +77,17 @@ export interface PosterRect extends PosterBaseJson, PosterBaseRect {
 /**
  * 画布元素：图片
  */
-export interface PosterImage extends PosterBaseJson, PosterBaseRect {
+export interface PosterImage extends PosterBaseRect {
   type: PosterType.image
   src: string
 }
 /**
  * 画布元素：文本
  */
-export interface PosterBaseText extends PosterBaseJson, FontConfig {
+export interface PosterBaseText extends PosterBaseJson, ShadowConfig, FontConfig {
   text: string
   color: string
+  letterSpacing?: number
   // 这是一个实验中的功能， default: 'inherit'
   // direction?: 'ltr' | 'rtl' | 'inherit'
   // default: 'left', direction 属性会对此属性产生影响, https://developer.mozilla.org/zh-CN/docs/Web/API/CanvasRenderingContext2D/textAlign

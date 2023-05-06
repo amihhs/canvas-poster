@@ -13,7 +13,13 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
-    "skipLibCheck": true
-  },
-  "include": ["packages"]
+    "skipLibCheck": true,
+    "types": [
+      "node",
+      "vite/client"
+    ],
+    "paths": {
+      "@amihhs/canvas-poster": ["./packages/core/src/index.ts"]
+    }
+  }
 }
