@@ -1,7 +1,7 @@
 {
   "name": "@amihhs/canvas-poster",
   "type": "module",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "private": true,
   "packageManager": "pnpm@7.5.1",
   "description": "使用canvas生成海报",
@@ -22,19 +22,19 @@
     "prepare": "husky install"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^0.35.2",
-    "@commitlint/cli": "^17.4.4",
-    "@commitlint/config-conventional": "^17.4.4",
+    "@antfu/eslint-config": "^0.38.6",
+    "@commitlint/cli": "^17.6.3",
+    "@commitlint/config-conventional": "^17.6.3",
     "@commitlint/types": "^17.4.4",
-    "@types/node": "^18.14.2",
-    "bumpp": "^9.0.0",
-    "eslint": "^8.33.0",
+    "@types/node": "^20.1.0",
+    "bumpp": "^9.1.0",
+    "eslint": "^8.40.0",
     "esno": "^0.16.3",
     "husky": "^8.0.3",
-    "lint-staged": "^13.1.2",
-    "typescript": "^4.9.3",
-    "unbuild": "^1.1.2",
-    "vitest": "^0.29.2"
+    "lint-staged": "^13.2.2",
+    "typescript": "^5.0.4",
+    "unbuild": "^1.2.1",
+    "vitest": "^0.31.0"
   },
   "lint-staged": {
     "*.{vue,js,ts,jsx,tsx,md,json,yml}": "eslint --fix"
