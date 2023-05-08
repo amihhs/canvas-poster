@@ -77,19 +77,26 @@ export class Poster {
   }
 
   drawImage = async (config: PosterImage) => {
-    const { src, x, y, width, height } = config || {}
+    const { src } = config || {}
     const img = new Image()
-    let isProxy = false
     img.setAttribute('crossOrigin', 'anonymous')
     img.setAttribute('src', src)
+
+    let isProxy = false
+    let imageWidth = 0
+    let imageHeight = 0
+
     await new Promise((resolve) => {
       img.onload = () => {
         this.context.save()
 
+        // 绘制阴影
         this.drawShadow(config)
         // 绘制圆角矩形
         this.drawRadius(config, true)
-        this.context.drawImage(img, x, y, width, height)
+        imageWidth = img.width
+        imageHeight = img.height
+        this.objectFitImage(config, img, imageWidth, imageHeight)
         this.context.restore()
         resolve(true)
       }
@@ -99,8 +106,7 @@ export class Poster {
           // eslint-disable-next-line no-console
           console.info('proxy image:', src)
           await this.proxy(src).then((res) => {
-          // eslint-disable-next-line no-console
-            console.log('proxy image success:', res)
+            // console.log('proxy image success:', res)
             img.setAttribute('src', res)
           }).catch((err) => {
             console.error('proxy image error:', err)
@@ -189,18 +195,21 @@ export class Poster {
     // 绘制阴影
     this.drawShadow(rectConfig)
 
+    // 绘制圆角矩形
+    this.drawRadius(rectConfig)
+
     if (bgColor !== 'none') {
       this.context.fillStyle = bgColor
       this.setOpacity(opacity)
+      this.context.fill()
     }
-    // 绘制圆角矩形
-    this.drawRadius(rectConfig)
 
     this.context.restore()
   }
 
   // 绘制圆角矩形
   drawRoundedRect = (x: number, y: number, width: number, height: number, radius: number) => {
+    this.context.beginPath()
     this.context.moveTo(x + radius, y)
     this.context.lineTo(x + width - radius, y)
     this.context.arc(x + width - radius, y + radius, radius, 1.5 * Math.PI, 2 * Math.PI)
@@ -211,8 +220,6 @@ export class Poster {
     this.context.lineTo(x, y + radius)
     this.context.arc(x + radius, y + radius, radius, 1 * Math.PI, 1.5 * Math.PI)
     this.context.closePath()
-
-    this.context.fill()
   }
 
   drawRadius = <T extends PosterBaseRect >(config: T, isClip = false) => {
@@ -220,7 +227,8 @@ export class Poster {
     if (!boxRadius)
       return
     this.drawRoundedRect(x, y, width, height, boxRadius)
-    isClip && this.context.clip()
+    if (isClip)
+      this.context.clip()
   }
 
   drawShadow = <T extends ShadowConfig>(config: T) => {
@@ -232,6 +240,65 @@ export class Poster {
     this.context.shadowOffsetX = shadowOffsetX
     this.context.shadowOffsetY = shadowOffsetY
     this.context.shadowBlur = shadowBlur
+  }
+
+  objectFitImage = (config: PosterImage, img: HTMLImageElement, imageWidth: number, imageHeight: number) => {
+    const { x, y, width, height, objectFit } = config || {}
+    const containerRatio = height / width
+    const imageRatio = imageHeight / imageWidth
+    const shortDirection = containerRatio > imageRatio ? 'y' : 'x'
+
+    const d = {
+      sx: 0,
+      sy: 0,
+      sw: imageWidth,
+      sh: imageHeight,
+      x,
+      y,
+      width,
+      height,
+    }
+    // none
+    switch (objectFit) {
+      // 显示全部，短边留白
+      case 'contain':{
+        if (shortDirection === 'x') {
+          d.x = x + (width - width * imageRatio) / 2
+          d.width = width * imageRatio
+        }
+        else {
+          d.y = y + (height - height / imageRatio) / 2
+          d.height = height / imageRatio
+        }
+        break
+      }
+      // 短边填充，长边裁剪
+      case 'cover':{
+        const sameRatoImageSize = {
+          width: imageWidth,
+          height: imageWidth * containerRatio,
+        }
+        if (shortDirection === 'x') {
+          d.sx = 0
+          d.sy = (imageHeight - sameRatoImageSize.height) / 2
+          d.sw = imageWidth
+          d.sh = sameRatoImageSize.height
+        }
+        else {
+          d.sx = (imageWidth - sameRatoImageSize.width) / 2
+          d.sy = 0
+          d.sw = sameRatoImageSize.width
+          d.sh = imageHeight
+        }
+        break
+      }
+      // 压缩长边，全部显示
+      default:{
+        return this.context.drawImage(img, d.x, d.y, d.width, d.height)
+      }
+    }
+
+    this.context.drawImage(img, d.sx, d.sy, d.sw, d.sh, d.x, d.y, d.width, d.height)
   }
 
   getTextWidth = (text: string, font: string, letterSpacing = 0) => {

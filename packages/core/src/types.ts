@@ -77,9 +77,12 @@ export interface PosterRect extends PosterBaseRect {
 /**
  * 画布元素：图片
  */
+export type ObjectFit = 'none' | 'fill' | 'contain' | 'cover' | 'scale-down'
+
 export interface PosterImage extends PosterBaseRect {
   type: PosterType.image
   src: string
+  objectFit?: ObjectFit
 }
 /**
  * 画布元素：文本
