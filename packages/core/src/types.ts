@@ -22,6 +22,7 @@ export interface PosterContext {
   defaultFont: Required<FontConfig>
   font: (config: FontConfig) => string
   getTextWidth: (text: string, font: string, letterSpacing?: number) => number
+  getTextLineCount: (width: number, text: string, font: string, letterSpacing?: number) => number
 }
 
 export type PosterGenerateDrawFn = (context: PosterContext) => Promise<PosterJson>

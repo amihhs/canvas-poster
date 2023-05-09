@@ -15,6 +15,13 @@ import {
   PosterType,
 } from './types'
 import { isFunction, transformFont } from './utils'
+const DEFAULT_FONT: Required<FontConfig> = {
+  fontSize: 14,
+  fontFamily: 'sans-serif',
+  fontWeight: 'normal',
+  fontStyle: 'normal',
+  lineHeight: 1,
+}
 export class Poster {
   canvas: HTMLCanvasElement
   context: CanvasRenderingContext2D
@@ -22,13 +29,7 @@ export class Poster {
   height = 452
   DPI = 2
   content: PosterJson[] = []
-  defaultFont: Required<FontConfig> = {
-    fontSize: 14,
-    fontFamily: 'sans-serif',
-    fontWeight: 'normal',
-    fontStyle: 'normal',
-    lineHeight: 1,
-  }
+  defaultFont: Required<FontConfig> = { ...DEFAULT_FONT }
 
   proxy?: (src: string) => Promise<string> = undefined
 
@@ -74,6 +75,7 @@ export class Poster {
 
     this.canvas.width = this.setDPI(this.width)
     this.canvas.height = this.setDPI(this.height)
+    this.defaultFont = formatDPI(DEFAULT_FONT, this.DPI)
   }
 
   drawImage = async (config: PosterImage) => {
@@ -124,9 +126,9 @@ export class Poster {
   drawTextLetterSpacing = (x: number, y: number, texts: { text: string; width: number }[], shadowConfig?: ShadowConfig) => {
     let currentX = x
     texts.forEach((item) => {
-      currentX += item.width
       this.drawShadow({ ...shadowConfig })
       this.context.fillText(item.text, currentX, y)
+      currentX += item.width
     })
   }
 
@@ -223,9 +225,7 @@ export class Poster {
   }
 
   drawRadius = <T extends PosterBaseRect >(config: T, isClip = false) => {
-    const { x, y, width, height, boxRadius } = config || {}
-    if (!boxRadius)
-      return
+    const { x, y, width, height, boxRadius = 0 } = config || {}
     this.drawRoundedRect(x, y, width, height, boxRadius)
     if (isClip)
       this.context.clip()
@@ -312,6 +312,24 @@ export class Poster {
     return width
   }
 
+  getTextLineCount = (width: number, text: string, font: string, letterSpacing = 0) => {
+    const texts = this.generateTextSlice(text, font, letterSpacing)
+    const lines = []
+    let line = []
+    let lineWidth = 0
+    for (const item of texts) {
+      if (lineWidth + item.width > width) {
+        lines.push(line)
+        line = []
+        lineWidth = 0
+      }
+      line.push(item)
+      lineWidth += item.width
+    }
+    lines.push(line)
+    return lines.length
+  }
+
   /**
    * 切片文本内容
    */
@@ -337,9 +355,15 @@ export class Poster {
       height: this.height,
       dpi: this.DPI,
       canvasContext: this.context,
-      defaultFont: this.defaultFont,
-      font: (config: FontConfig) => transformFont(config, this.defaultFont),
-      getTextWidth: (text: string, font: string, letterSpacing = 0) => this.getTextWidth(text, font, letterSpacing * this.DPI),
+      defaultFont: DEFAULT_FONT,
+      font: (config: FontConfig) => transformFont(config, DEFAULT_FONT),
+      getTextWidth: (text: string, font: string, letterSpacing = 0) => this.getTextWidth(text, font, letterSpacing),
+      getTextLineCount: (
+        width: number,
+        text: string,
+        font: string,
+        letterSpacing = 0,
+      ) => this.getTextLineCount(width, text, font, letterSpacing),
     }
     if (!isFunction(callback))
       throw new Error('generateDraw callback is not a function')
@@ -368,7 +392,7 @@ export class Poster {
 }
 
 const needTransformKeys = ['x', 'y', 'width', 'height', 'fontSize', 'letterSpacing', 'shadowBlur', 'shadowOffsetX', 'shadowOffsetY', 'boxRadius']
-function formatDPI<T extends PosterJson>(item: T, dpi = 1): T {
+function formatDPI<T extends {}>(item: T, dpi = 1): T {
   const newJson: T = { ...item }
   for (const key in item) {
     const value = item[key]
