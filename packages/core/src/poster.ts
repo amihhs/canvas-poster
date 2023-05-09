@@ -33,8 +33,8 @@ export class Poster {
 
   proxy?: (src: string) => Promise<string> = undefined
 
-  constructor(config?: PosterConfig) {
-    this.canvas = this.createCanvas()
+  constructor(config?: PosterConfig, canvasEl?: HTMLCanvasElement) {
+    this.canvas = canvasEl || this.createCanvas()
     this.context = this.canvas.getContext('2d')!
 
     this.resize(config)
