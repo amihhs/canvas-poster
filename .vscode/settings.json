@@ -5,5 +5,9 @@
     "source.fixAll.eslint": true
   },
   "editor.formatOnSave": false,
-  "cSpell.words": []
+  "cSpell.words": [],
+  "unocss.root": [
+    "playground"
+  ],
+  "vue.codeActions.enabled": false
 }

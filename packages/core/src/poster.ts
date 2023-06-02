@@ -15,6 +15,7 @@ import {
   PosterType,
 } from './types'
 import { isFunction, transformFont } from './utils'
+
 const DEFAULT_FONT: Required<FontConfig> = {
   fontSize: 14,
   fontFamily: 'sans-serif',
