@@ -3,7 +3,8 @@
   "compilerOptions": {
     "lib": ["esnext", "dom"],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@amihhs/canvas-poster": ["../packages/core/src/index.ts"]
     }
   },
   "exclude": ["**/dist/**"],

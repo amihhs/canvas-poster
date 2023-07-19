@@ -1,6 +1,7 @@
 import type { PosterJson } from '@amihhs/canvas-poster'
 import { Poster, PosterType } from '@amihhs/canvas-poster'
 import { CanvasControl } from './event'
+import type { BaseSetting } from '@/interface'
 
 export function handler() {
   const canvasRef = ref<HTMLCanvasElement | null>(null)
@@ -36,22 +37,18 @@ export function handler() {
   return {
     canvasRef,
     baseSetting,
+    json,
   }
 }
 
-export interface BaseSetting {
-  bgColor: string
-  canvasWidth: number
-  canvasHeight: number
-  dpi: number
+export const baseSettingDefault: BaseSetting = {
+  bgColor: '#ffffff',
+  canvasWidth: 354,
+  canvasHeight: 700,
+  dpi: 2,
 }
 export function baseSettingHandler() {
-  const baseSetting = ref<BaseSetting>({
-    bgColor: '#ffffff',
-    canvasWidth: 354,
-    canvasHeight: 700,
-    dpi: 2,
-  })
+  const baseSetting = ref<BaseSetting>(Object.assign(baseSettingDefault, {}))
   function baseSettingUpdateHandler(posterCxt: Poster | null, baseSetting: BaseSetting) {
     if (!posterCxt)
       return

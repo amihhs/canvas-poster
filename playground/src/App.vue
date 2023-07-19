@@ -1,12 +1,20 @@
 <script setup lang="ts">
-import { handler } from './logic/index'
+import type { RightState } from '@/interface'
 
-const { canvasRef, baseSetting } = handler()
+const { canvasRef, baseSetting, json } = handler()
 
 const style = computed(() => ({
   width: `${baseSetting.value.canvasWidth}px`,
   height: `${baseSetting.value.canvasHeight}px`,
 }))
+
+const rightState = ref<RightState>('base')
+function changeRightState(state: RightState) {
+  rightState.value = state
+}
+provide(CANVAS_EL_KEY, canvasRef)
+provide(BASE_SETTING_KEY, baseSetting)
+provide(CONTENT_JSON_KEY, json)
 </script>
 
 <template>
@@ -20,26 +28,40 @@ const style = computed(() => ({
       <canvas ref="canvasRef" class="origin-top-center" :style="style" />
     </div>
     <div class="fixed right-3 top-3 w-25% flex-shrink-0 bg-white h-95vh overflow-auto p-3 rounded-md select-none">
-      <h1 class="font-bold text-4 border-(b-1 gray-2) pb-3">
-        基础设置
-      </h1>
-      <div>
-        <div class="flex items-center justify-between border-(b-1 slate-1) p-3">
-          <span class="text-3.5">背景颜色</span>
-          <input v-model="baseSetting.bgColor" type="color" class="w-20 h-8">
+      <div class="grid grid-cols-5 justify-items-center text-5 pb-1 mb-3 border-(b-3 slate-2)">
+        <div class="cursor-pointer " title="基础设置" @click="changeRightState('base')">
+          <i class="i-carbon:settings" />
         </div>
-        <div class="flex items-center justify-between border-(b-1 slate-1) p-3">
-          <span class="text-3.5">画布像素比</span>
-          <input v-model.number="baseSetting.dpi" type="text" class="px-3 border-(2 slate-3) rounded-md h-8">
+        <div class="cursor-pointer" title="全部内容" @click="changeRightState('content')">
+          <i class="i-fluent:content-view-24-regular" />
         </div>
-        <div class="flex items-center justify-between border-(b-1 slate-1) p-3">
-          <span class="text-3.5">画布宽</span>
-          <input v-model.number="baseSetting.canvasWidth" type="text" class="px-3 border-(2 slate-3) rounded-md h-8">
+        <div class="cursor-pointer" title="添加" @click="changeRightState('add')">
+          <i class="i-carbon:add" />
         </div>
-        <div class="flex items-center justify-between border-(b-1 slate-1) p-3">
-          <span class="text-3.5">画布高</span>
-          <input v-model.number="baseSetting.canvasHeight" type="text" class="px-3 border-(2 slate-3) rounded-md h-8">
-        </div>
+      </div>
+      <div v-if="rightState === 'base'">
+        <h1 class="font-bold text-4">
+          基础设置
+        </h1>
+        <SettingBase />
+      </div>
+      <div v-else-if="rightState === 'content'">
+        <h1 class="font-bold text-4">
+          全部内容
+        </h1>
+        <SettingContents />
+      </div>
+      <div v-else-if="rightState === 'add'">
+        <h1 class="font-bold text-4">
+          添加内容
+        </h1>
+        <SettingAdd />
+      </div>
+      <div v-else-if="rightState === 'edit'">
+        <h1 class="font-bold text-4">
+          内容编辑
+        </h1>
+        <SettingEdit />
       </div>
     </div>
   </div>
@@ -47,6 +69,6 @@ const style = computed(() => ({
 
 <style lang="scss">
 html,body,#app {
-  --at-apply: bg-gray-2;
+  --uno: bg-gray-2;
 }
 </style>

@@ -9,6 +9,7 @@ import {
   transformerVariantGroup,
 } from 'unocss'
 import { FileSystemIconLoader } from '@iconify/utils/lib/loader/node-loaders'
+
 export default defineConfig({
   // 通过组合现有实用程序来创建新的实用程序
   shortcuts: [],
@@ -23,7 +24,7 @@ export default defineConfig({
       scale: 1.2,
       extraProperties: {
         'display': 'inline-block',
-        'vertical-align': 'middle',
+        'vertical-align': '-0.15em',
       },
       // prefix: 'icon-',
       collections: {
