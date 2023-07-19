@@ -1,4 +1,5 @@
 export enum PosterType {
+  line = 'line',
   image = 'image',
   text = 'text',
   textEllipsis = 'textEllipsis', // 截取文本绘制
@@ -41,7 +42,7 @@ export interface FontConfig {
 /**
  * 画布元素
  */
-export type PosterJson = PosterImage | PosterText | PosterEllipsisText | PosterRect
+export type PosterJson = PosterImage | PosterText | PosterEllipsisText | PosterRect | PosterLine
 /**
  * 画布元素基础类型
  */
@@ -75,6 +76,17 @@ export interface PosterRect extends PosterBaseRect {
   // default: 1
   opacity?: number
 }
+
+export interface PosterLine extends PosterBaseJson {
+  type: PosterType.line
+  // [x, y][]
+  paths: ([number, number, 'moveTo'] | [number, number])[]
+  color?: string | CanvasGradient | CanvasPattern
+  // default: 1
+  lineWidth?: number
+  // 线条样式 default: [0, 0] 两个值分别表示虚线的长度和间距
+  lineDash?: number[]
+}
 /**
  * 画布元素：图片
  */
@@ -90,7 +102,7 @@ export interface PosterImage extends PosterBaseRect {
  */
 export interface PosterBaseText extends PosterBaseJson, ShadowConfig, FontConfig {
   text: string
-  color: string
+  color: string | CanvasGradient | CanvasPattern
   letterSpacing?: number
   // 这是一个实验中的功能， default: 'inherit'
   // direction?: 'ltr' | 'rtl' | 'inherit'

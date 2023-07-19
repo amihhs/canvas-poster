@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import type {
   FontConfig,
   PosterBaseRect,
@@ -7,6 +6,7 @@ import type {
   PosterEllipsisText,
   PosterImage,
   PosterJson,
+  PosterLine,
   PosterRect,
   PosterText,
   ShadowConfig,
@@ -210,6 +210,26 @@ export class Poster {
     this.context.restore()
   }
 
+  drawLine = async (rectConfig: PosterLine) => {
+    const { x, y, paths = [], color, lineWidth = 1, lineDash = [] } = rectConfig || {}
+
+    this.context.save()
+    this.context.beginPath()
+    this.context.setLineDash(lineDash)
+    this.context.moveTo(x, y)
+    paths.forEach((item) => {
+      if (item[2] === 'moveTo')
+        this.context.moveTo(item[0], item[1])
+      else
+        this.context.lineTo(item[0], item[1])
+    })
+    this.context.lineWidth = lineWidth
+    if (color)
+      this.context.strokeStyle = color
+    this.context.stroke()
+    this.context.restore()
+  }
+
   // 绘制圆角矩形
   drawRoundedRect = (x: number, y: number, width: number, height: number, radius: number) => {
     this.context.beginPath()
@@ -386,25 +406,44 @@ export class Poster {
 
       if (item.type === PosterType.rect)
         await this.drawRect(item)
+
+      if (item.type === PosterType.line)
+        await this.drawLine(item)
     }
 
     return this.canvas
   }
 }
 
-const needTransformKeys = ['x', 'y', 'width', 'height', 'fontSize', 'letterSpacing', 'shadowBlur', 'shadowOffsetX', 'shadowOffsetY', 'boxRadius']
+const baseTransformKeys = ['x', 'y', 'width', 'height']
+const textTransformKeys = ['fontSize', 'letterSpacing']
+const rectTransformKeys = ['shadowBlur', 'shadowOffsetX', 'shadowOffsetY', 'boxRadius']
+const lineTransformKeys = ['lineDash', 'lineWidth', 'paths']
+const needTransformKeys = [
+  ...baseTransformKeys,
+  ...textTransformKeys,
+  ...rectTransformKeys,
+  ...lineTransformKeys,
+]
 function formatDPI<T extends {}>(item: T, dpi = 1): T {
   const newJson: T = { ...item }
   for (const key in item) {
     const value = item[key]
-    if (typeof value === 'number' && needTransformKeys.includes(key))
-      // @ts-expect-error
-      newJson[key] = value * dpi
+    if (needTransformKeys.includes(key))
+      newJson[key] = transformDPI(value, dpi)
     else
       newJson[key] = value
   }
 
   return newJson
+}
+function transformDPI<T>(value: T, dpi = 1): T {
+  if (typeof value === 'number')
+    return value * dpi as T
+  else if (Array.isArray(value))
+    return value.map(v => transformDPI(v, dpi)) as T
+  else
+    return value
 }
 
 /**

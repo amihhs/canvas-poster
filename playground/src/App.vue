@@ -8,7 +8,7 @@ const style = computed(() => ({
   height: `${baseSetting.value.canvasHeight}px`,
 }))
 
-const rightState = ref<RightState>('base')
+const rightState = ref<RightState>('content')
 function changeRightState(state: RightState) {
   rightState.value = state
 }
@@ -27,7 +27,7 @@ provide(CONTENT_JSON_KEY, json)
     <div class="pt-5 grid place-content-center">
       <canvas ref="canvasRef" class="origin-top-center" :style="style" />
     </div>
-    <div class="fixed right-3 top-3 w-25% flex-shrink-0 bg-white h-95vh overflow-auto p-3 rounded-md select-none">
+    <div class="fixed right-3 top-3 w-25% flex-shrink-0 bg-white h-95vh overflow-auto p-3 rounded-md select-none ">
       <div class="grid grid-cols-5 justify-items-center text-5 pb-1 mb-3 border-(b-3 slate-2)">
         <div class="cursor-pointer " title="基础设置" @click="changeRightState('base')">
           <i class="i-carbon:settings" />
@@ -45,11 +45,11 @@ provide(CONTENT_JSON_KEY, json)
         </h1>
         <SettingBase />
       </div>
-      <div v-else-if="rightState === 'content'">
-        <h1 class="font-bold text-4">
+      <div v-else-if="rightState === 'content'" class="flex flex-col h-[calc(95vh-4.75rem)]">
+        <h1 class="font-bold text-4 flex-shrink-0">
           全部内容
         </h1>
-        <SettingContents />
+        <SettingContents class="flex-grow" />
       </div>
       <div v-else-if="rightState === 'add'">
         <h1 class="font-bold text-4">

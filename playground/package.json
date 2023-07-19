@@ -12,10 +12,12 @@
     "@amihhs/canvas-poster": "workspace:*",
     "@vueuse/core": "^10.1.2",
     "dexie": "^3.2.4",
+    "uuid": "^9.0.0",
     "vue": "^3.3.4"
   },
   "devDependencies": {
     "@iconify/json": "^2.2.91",
+    "@types/uuid": "^9.0.2",
     "@vitejs/plugin-vue": "^4.2.3",
     "sass": "^1.62.1",
     "typescript": "^5.1.3",

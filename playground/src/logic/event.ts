@@ -1,14 +1,16 @@
+/* eslint-disable no-console */
 import { PosterType } from '@amihhs/canvas-poster'
-import type { PosterJson } from '@amihhs/canvas-poster'
+import type { DrawJson } from '@/interface'
 
-export type CanvasControlLocationJson = PosterJson & { sort: number }
+export type CanvasControlLocationJson = DrawJson & { sort: number }
 export class CanvasControl {
   canvas: HTMLCanvasElement | null = null
   context: CanvasRenderingContext2D | null = null
-  drawContext: PosterJson[] = []
+  drawContext: DrawJson[] = []
   drawContextMap = new Map<string, CanvasControlLocationJson>()
 
-  constructor(canvas: HTMLCanvasElement, drawContext: PosterJson[] = []) {
+  currentHoverKey: { key: string; index: number } | null = null
+  constructor(canvas: HTMLCanvasElement, drawContext: DrawJson[] = []) {
     this.canvas = canvas
     this.context = canvas.getContext('2d')!
     this.drawContext = drawContext
@@ -17,26 +19,34 @@ export class CanvasControl {
 
   protected _initHandler = () => {
     if (!this.canvas)
-      return console.warn('canvas is null')
+      return console.error('canvas is null')
     useEventListener(this.canvas, 'mousemove', this._mouseMoveHandler)
+    useEventListener(this.canvas, 'click', this._clickHandler)
   }
 
   protected _mouseMoveHandler = (e: MouseEvent) => {
     // console.log({ x: e.offsetX, y: e.offsetY })
     const key = this.findCurrentHoveItemKey(e.offsetX, e.offsetY)
+    this.currentHoverKey = key || null
+  }
 
+  protected _clickHandler = (e: MouseEvent) => {
+    const key = this.findCurrentHoveItemKey(e.offsetX, e.offsetY)
     if (!key)
       return
-    const item = this.drawContextMap.get(key.key)
-    // eslint-disable-next-line no-console
+    this.selectItem(key.key)
+  }
+
+  selectItem = (key: string) => {
+    const item = this.drawContextMap.get(key)
     console.log(item)
   }
 
-  updateDrawContext = (json: PosterJson[]) => {
+  updateDrawContext = (json: DrawJson[]) => {
     this.diffUpdateDrawContext(json)
   }
 
-  diffUpdateDrawContext = (json: PosterJson[]) => {
+  diffUpdateDrawContext = (json: DrawJson[]) => {
     this.drawContext = json
     const { newJsonMap } = diff(this.drawContextMap, json)
     this.drawContextMap = newJsonMap
@@ -49,8 +59,8 @@ export class CanvasControl {
   findCurrentHoveItemKey = (x: number, y: number) => {
     const items = []
     for (const [_, data] of this.drawContextMap) {
-      if (this.isCanvasBgRect(data))
-        continue
+      // if (this.isCanvasBgRect(data))
+      //   continue
       if (x > data.x && x < data.x + data.width && y > data.y && y < data.y + data.height)
         items.push({ key: _, index: data.sort })
     }
@@ -60,7 +70,7 @@ export class CanvasControl {
   }
 }
 
-function diff(oldJsonMap: Map<string, PosterJson>, newJson: PosterJson[]) {
+function diff(oldJsonMap: Map<string, DrawJson>, newJson: DrawJson[]) {
   const diffJson: CanvasControlLocationJson[] = []
   const newJsonMap = new Map<string, CanvasControlLocationJson>()
   newJson.forEach((item, index) => {
