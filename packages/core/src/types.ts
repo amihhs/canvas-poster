@@ -102,7 +102,7 @@ export interface PosterImage extends PosterBaseRect {
  */
 export interface PosterBaseText extends PosterBaseJson, ShadowConfig, FontConfig {
   text: string
-  color: string | CanvasGradient | CanvasPattern
+  color?: string | CanvasGradient | CanvasPattern
   letterSpacing?: number
   // 这是一个实验中的功能， default: 'inherit'
   // direction?: 'ltr' | 'rtl' | 'inherit'

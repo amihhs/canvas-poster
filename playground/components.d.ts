@@ -7,10 +7,8 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
-    copy: typeof import('./src/components/setting/contents copy.vue')['default']
     SettingAdd: typeof import('./src/components/setting/add.vue')['default']
     SettingBase: typeof import('./src/components/setting/base.vue')['default']
-    SettingContentEdit: typeof import('./src/components/setting/content-edit.vue')['default']
     SettingContents: typeof import('./src/components/setting/contents/index.vue')['default']
     SettingEdit: typeof import('./src/components/setting/edit.vue')['default']
   }

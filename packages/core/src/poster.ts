@@ -31,8 +31,11 @@ export class Poster {
   DPI = 2
   content: PosterJson[] = []
   defaultFont: Required<FontConfig> = { ...DEFAULT_FONT }
+  defaultColor = '#000'
 
   proxy?: (src: string) => Promise<string> = undefined
+
+  proxyImageCache: Map<string, string> = new Map()
 
   constructor(config?: PosterConfig, canvasEl?: HTMLCanvasElement) {
     this.canvas = canvasEl || this.createCanvas()
@@ -66,17 +69,34 @@ export class Poster {
 
   // 画布大小和状态变化
   resize = (config?: PosterConfig) => {
-    const { scale = this.DPI, content = this.content, width = this.width, height = this.height } = config || {}
+    const {
+      scale = this.DPI,
+      content = this.content,
+      width = this.width,
+      height = this.height,
+      proxy = this.proxy,
+    } = config || {}
     this.DPI = scale
     this.content = content
     this.width = width
     this.height = height
     // image proxy loader
-    this.proxy = config?.proxy
+    this.proxy = proxy
 
     this.canvas.width = this.setDPI(this.width)
     this.canvas.height = this.setDPI(this.height)
-    this.defaultFont = formatDPI(DEFAULT_FONT, this.DPI)
+    this.defaultFont = formatDPI(this.defaultFont, this.DPI)
+  }
+
+  setDefault = (key: 'fontFamily' | 'color', value: string) => {
+    switch (key) {
+      case 'fontFamily':
+        this.defaultFont.fontFamily = value
+        break
+      case 'color':
+        this.defaultColor = value
+        break
+    }
   }
 
   drawImage = async (config: PosterImage) => {
@@ -106,15 +126,24 @@ export class Poster {
       img.onerror = async (error) => {
         if (isFunction(this.proxy) && !isProxy) {
           isProxy = true
-          // eslint-disable-next-line no-console
-          console.info('proxy image:', src)
-          await this.proxy(src).then((res) => {
-            // console.log('proxy image success:', res)
-            img.setAttribute('src', res)
-          }).catch((err) => {
-            console.error('proxy image error:', err)
-            resolve(false)
-          })
+
+          const cache = this.proxyImageCache.get(src)
+          if (cache) {
+            img.setAttribute('src', cache)
+            resolve(true)
+          }
+          else {
+            // eslint-disable-next-line no-console
+            console.info('proxy image:', src)
+            await this.proxy(src).then((res) => {
+              img.setAttribute('src', res)
+              this.proxyImageCache.set(src, res)
+              resolve(true)
+            }).catch((err) => {
+              console.error('proxy image error:', err)
+              resolve(false)
+            })
+          }
         }
         else {
           console.error('error', error)
@@ -134,12 +163,11 @@ export class Poster {
   }
 
   drawText = async (textConfig: PosterText) => {
-    const { x, y, text, color, textBaseline, textAlign, ...shadowConfig } = textConfig || {}
+    const { x, y, text, color = this.defaultColor, textBaseline, textAlign, ...shadowConfig } = textConfig || {}
     const font = transformFont(textConfig, this.defaultFont)
     this.context.save()
     this.context.font = font
     this.context.fillStyle = color
-
     textBaseline && this.setTextBaseline(textBaseline)
     textAlign && this.setTextAlign(textAlign)
 
@@ -158,7 +186,7 @@ export class Poster {
    * 1. 确定的绘制区域宽高
    */
   drawEllipsisText = async (textConfig: PosterEllipsisText) => {
-    const { x, y, text, color, width, height, letterSpacing = 0, ellipsis = '...' } = textConfig || {}
+    const { x, y, text, color = this.defaultColor, width, height, letterSpacing = 0, ellipsis = '...' } = textConfig || {}
     const { fontSize = this.defaultFont.fontSize, lineHeight = this.defaultFont.lineHeight } = textConfig || {}
     const { textBaseline, textAlign } = textConfig || {}
 
@@ -376,8 +404,8 @@ export class Poster {
       height: this.height,
       dpi: this.DPI,
       canvasContext: this.context,
-      defaultFont: DEFAULT_FONT,
-      font: (config: FontConfig) => transformFont(config, DEFAULT_FONT),
+      defaultFont: this.defaultFont,
+      font: (config: FontConfig) => transformFont(config, this.defaultFont),
       getTextWidth: (text: string, font: string, letterSpacing = 0) => this.getTextWidth(text, font, letterSpacing),
       getTextLineCount: (
         width: number,
