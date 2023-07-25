@@ -489,7 +489,8 @@ function generateEllipsisTextLines(
   let lineWidth = 0
   for (const item of texts) {
     const isLastLine = lines.length === lineCount - 1
-    const checkWidth = isLastLine ? width - ellipsisWidth : width
+    const isLastText = texts[texts.length - 1] === item
+    const checkWidth = (isLastLine && !isLastText) ? width - ellipsisWidth : width
     if (lineWidth + item.width > checkWidth) {
       lines.push(line)
       line = ''

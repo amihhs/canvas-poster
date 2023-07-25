@@ -1,5 +1,5 @@
 {
-  "name": "@amihhs/canvas-poster",
+  "name": "canvas-poster",
   "type": "module",
   "version": "0.0.10",
   "private": true,
