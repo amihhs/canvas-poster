@@ -124,31 +124,25 @@ export class Poster {
         resolve(true)
       }
       img.onerror = async (error) => {
-        if (isFunction(this.proxy) && !isProxy) {
-          isProxy = true
-
-          const cache = this.proxyImageCache.get(src)
-          if (cache) {
-            img.setAttribute('src', cache)
-            resolve(true)
-          }
-          else {
-            // eslint-disable-next-line no-console
-            console.info('proxy image:', src)
-            await this.proxy(src).then((res) => {
-              img.setAttribute('src', res)
-              this.proxyImageCache.set(src, res)
-              resolve(true)
-            }).catch((err) => {
-              console.error('proxy image error:', err)
-              resolve(false)
-            })
-          }
-        }
-        else {
+        if (!this.proxy || !isFunction(this.proxy) || isProxy) {
           console.error('error', error)
-          resolve(false)
+          return resolve(false)
         }
+
+        isProxy = true
+        const cache = this.proxyImageCache.get(src)
+        if (cache)
+          return img.setAttribute('src', cache)
+
+        // eslint-disable-next-line no-console
+        console.info('proxy image:', src)
+        await this.proxy(src).then((res) => {
+          img.setAttribute('src', res)
+          this.proxyImageCache.set(src, res)
+        }).catch((err) => {
+          console.error('proxy image error:', err)
+          resolve(false)
+        })
       }
     })
   }
