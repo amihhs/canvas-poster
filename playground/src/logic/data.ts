@@ -6,7 +6,7 @@ export function useControlJson() {
   const json = inject<UnwrapNestedRefs<DrawJson[]>>(CONTENT_JSON_KEY, [])
 
   function deleteJson(index: number, confirm = false) {
-    if (confirm && !window.confirm('确定删除吗？'))
+    if (confirm && !window.confirm('确定删除吗？')) // eslint-disable-line no-alert
       return
     json.splice(index, 1)
   }

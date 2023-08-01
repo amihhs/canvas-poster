@@ -447,7 +447,7 @@ const needTransformKeys = [
   ...rectTransformKeys,
   ...lineTransformKeys,
 ]
-function formatDPI<T extends {}>(item: T, dpi = 1): T {
+function formatDPI<T extends object>(item: T, dpi = 1): T {
   const newJson: T = { ...item }
   for (const key in item) {
     const value = item[key]

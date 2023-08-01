@@ -1,6 +1,6 @@
 import type { FontConfig } from './types'
 
-export const isFunction = (val: unknown): val is Function => typeof val === 'function'
+export const isFunction = (val: unknown): val is (...args: any[]) => any => typeof val === 'function'
 
 // 使用字体时需要先加载字体，否则会使用默认字体
 // const myFont = new FontFace('myFont', 'url(./custom.ttf)')
