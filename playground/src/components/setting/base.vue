@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import type { BaseSetting } from '@/interface'
 
-const baseSetting = inject<BaseSetting>('BASE_SETTING', baseSettingDefault)
+const baseSetting = inject<Ref<BaseSetting>>('BASE_SETTING', ref(baseSettingDefault))
 </script>
 
 <template>

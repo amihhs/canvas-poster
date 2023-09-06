@@ -10,28 +10,28 @@ export function handler() {
   const poster = shallowRef<Poster | null>(null)
   const posterControl = shallowRef<CanvasControl | null>(null)
 
-  const json = reactive<DrawJson[]>([])
+  const json = useLocalStorage<DrawJson[]>('json', [])
 
   function initHandler() {
     if (!canvasRef.value)
       return
     poster.value = new Poster({}, canvasRef.value)
-    json.splice(0, json.length, ...baseSettingUpdateHandler(poster.value, baseSetting.value) || [])
-    posterControl.value = new CanvasControl(canvasRef.value, json)
+    json.value = baseSettingUpdateHandler(poster.value, baseSetting.value) || []
+    posterControl.value = new CanvasControl(canvasRef.value, unref(json))
   }
 
   watch(canvasRef, initHandler, { immediate: true })
   watch(baseSetting, () => {
     if (!poster.value)
       return
-    json.splice(0, json.length, ...baseSettingUpdateHandler(poster.value, baseSetting.value) || [])
+    json.value = baseSettingUpdateHandler(poster.value, baseSetting.value) || []
   }, { deep: true, immediate: true })
 
   watch(json, () => {
     if (!poster.value || !posterControl.value)
       return
-    poster.value.create(json)
-    posterControl.value.updateDrawContext(json)
+    poster.value.create(unref(json))
+    posterControl.value.updateDrawContext(unref(json))
   }, { deep: true, immediate: true })
 
   return {
@@ -48,11 +48,15 @@ export const baseSettingDefault: BaseSetting = {
   dpi: 2,
 }
 export function baseSettingHandler() {
-  const baseSetting = ref<BaseSetting>(Object.assign(baseSettingDefault, {}))
+  const baseSetting = useLocalStorage<BaseSetting>('baseSetting', baseSettingDefault)
   function baseSettingUpdateHandler(posterCxt: Poster | null, baseSetting: BaseSetting): DrawJson[] | undefined {
     if (!posterCxt)
       return
-    posterCxt.resize({ width: baseSetting.canvasWidth, height: baseSetting.canvasHeight, scale: baseSetting.dpi })
+    posterCxt.resize({
+      width: baseSetting.canvasWidth,
+      height: baseSetting.canvasHeight,
+      scale: baseSetting.dpi,
+    })
     return [{
       id: uuidv4(),
       type: PosterType.rect,

@@ -18,3 +18,7 @@ export const CURRENT_CHANGE_JSON_KEY = Symbol('CURRENT_CHANGE_JSON')
  * @description 当前正在修改的json的可见性
  */
 export const CURRENT_CHANGE_VISIBLE_KEY = Symbol('CURRENT_CHANGE_VISIBLE')
+/**
+ * @description 添加表单数据
+ */
+export const ADD_FROM_KEY = Symbol('ADD_FROM_KEY')

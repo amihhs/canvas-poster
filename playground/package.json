@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@amihhs/canvas-poster": "workspace:*",
+    "@headlessui/vue": "^1.7.16",
     "@vueuse/core": "^10.1.2",
     "dexie": "^3.2.4",
     "uuid": "^9.0.0",

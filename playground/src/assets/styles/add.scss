@@ -1,0 +1,13 @@
+
+.form-item {
+  --uno: text-4 font-bold mb-sm;
+  .label {
+    --uno: text-4 font-bold mr-sm w-12 text-right inline-block;
+  }
+  .select {
+  --uno: border-(2 slate-2) px-sm py-2 rounded-md;
+  }
+  .input {
+    --uno: border-(2 slate-2) px-sm py-2 rounded-md;
+  }
+}

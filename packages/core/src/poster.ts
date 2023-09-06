@@ -14,7 +14,7 @@ import type {
 import {
   PosterType,
 } from './types'
-import { isFunction, transformFont } from './utils'
+import { analysisColor, gaussBlur, isFunction, objectFitImage, transformFont } from './utils'
 
 const DEFAULT_FONT: Required<FontConfig> = {
   fontSize: 14,
@@ -119,7 +119,7 @@ export class Poster {
         this.drawRadius(config, true)
         imageWidth = img.width
         imageHeight = img.height
-        this.objectFitImage(config, img, imageWidth, imageHeight)
+        objectFitImage(this.context, config, img, imageWidth, imageHeight)
         this.context.restore()
         resolve(true)
       }
@@ -285,65 +285,6 @@ export class Poster {
     this.context.shadowBlur = shadowBlur
   }
 
-  objectFitImage = (config: PosterImage, img: HTMLImageElement, imageWidth: number, imageHeight: number) => {
-    const { x, y, width, height, objectFit } = config || {}
-    const containerRatio = height / width
-    const imageRatio = imageHeight / imageWidth
-    const shortDirection = containerRatio > imageRatio ? 'y' : 'x'
-
-    const d = {
-      sx: 0,
-      sy: 0,
-      sw: imageWidth,
-      sh: imageHeight,
-      x,
-      y,
-      width,
-      height,
-    }
-    // none
-    switch (objectFit) {
-      // 显示全部，短边留白
-      case 'contain':{
-        if (shortDirection === 'x') {
-          d.x = x + (width - width * imageRatio) / 2
-          d.width = width * imageRatio
-        }
-        else {
-          d.y = y + (height - height / imageRatio) / 2
-          d.height = height / imageRatio
-        }
-        break
-      }
-      // 短边填充，长边裁剪
-      case 'cover':{
-        const sameRatoImageSize = {
-          width: imageWidth,
-          height: imageWidth * containerRatio,
-        }
-        if (shortDirection === 'x') {
-          d.sx = 0
-          d.sy = (imageHeight - sameRatoImageSize.height) / 2
-          d.sw = imageWidth
-          d.sh = sameRatoImageSize.height
-        }
-        else {
-          d.sx = (imageWidth - sameRatoImageSize.width) / 2
-          d.sy = 0
-          d.sw = sameRatoImageSize.width
-          d.sh = imageHeight
-        }
-        break
-      }
-      // 压缩长边，全部显示
-      default:{
-        return this.context.drawImage(img, d.x, d.y, d.width, d.height)
-      }
-    }
-
-    this.context.drawImage(img, d.sx, d.sy, d.sw, d.sh, d.x, d.y, d.width, d.height)
-  }
-
   getTextWidth = (text: string, font: string, letterSpacing = 0) => {
     this.context.save()
     this.context.font = font
@@ -411,6 +352,27 @@ export class Poster {
     if (!isFunction(callback))
       throw new Error('generateDraw callback is not a function')
     return callback(context)
+  }
+
+  generateDrawAsync = async <T extends PosterJson | PosterJson[]>(callback: (context: PosterContext) => Promise<T>) => {
+    const context: PosterContext = {
+      width: this.width,
+      height: this.height,
+      dpi: this.DPI,
+      canvasContext: this.context,
+      defaultFont: this.defaultFont,
+      font: (config: FontConfig) => transformFont(config, this.defaultFont),
+      getTextWidth: (text: string, font: string, letterSpacing = 0) => this.getTextWidth(text, font, letterSpacing),
+      getTextLineCount: (
+        width: number,
+        text: string,
+        font: string,
+        letterSpacing = 0,
+      ) => this.getTextLineCount(width, text, font, letterSpacing),
+    }
+    if (!isFunction(callback))
+      throw new Error('generateDraw callback is not a function')
+    return await callback(context)
   }
 
   // 生成海报
@@ -499,4 +461,63 @@ function generateEllipsisTextLines(
   }
   line && lines.push(line)
   return lines
+}
+
+export async function generateGaussBlurImage(options: {
+  width: number
+  height: number
+  radius?: number
+  sigma?: number
+  src: string
+  proxy?: (src: string) => Promise<string>
+}): Promise<{ img: string; color: [number, number, number] }> {
+  let isProxy = false
+  return new Promise((resolve, reject) => {
+    const canvas = document.createElement('canvas')
+    const context = canvas.getContext('2d')!
+    canvas.width = options.width
+    canvas.height = options.height
+    const img = new Image()
+    img.setAttribute('crossOrigin', 'anonymous')
+    img.setAttribute('src', options.src)
+    img.onload = async () => {
+      objectFitImage(context, {
+        type: PosterType.image,
+        x: 0,
+        y: 0,
+        src: options.src,
+        width: options.width,
+        height: options.height,
+        objectFit: 'cover',
+      },
+      img,
+      img.width,
+      img.height)
+
+      const data = context.getImageData(0, 0, options.width, options.height)
+      const promises = [
+        gaussBlur(data, options.radius, options.sigma),
+        analysisColor(data),
+      ] as const
+      const [emptyData, color] = await Promise.all(promises)
+      context.putImageData(emptyData, 0, 0)
+
+      resolve({ img: canvas.toDataURL('image/jpg') || '', color })
+    }
+    img.onerror = async (error) => {
+      if (!options.proxy || !isFunction(options.proxy) || isProxy) {
+        console.error('error', error)
+        return reject(error)
+      }
+      isProxy = true
+      // eslint-disable-next-line no-console
+      console.info('proxy image:', options.src)
+      await options.proxy(options.src).then((res) => {
+        img.setAttribute('src', res)
+      }).catch((err) => {
+        console.error('proxy image error:', err)
+        reject(err)
+      })
+    }
+  })
 }
