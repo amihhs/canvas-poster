@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target": "ESNext",
+    "baseUrl": ".",
     "useDefineForClassFields": true,
     "module": "ESNext",
     "lib": ["ESNext", "DOM"],
@@ -17,9 +18,11 @@
     "types": [
       "node",
       "vite/client"
-    ],
-    "paths": {
-      "@amihhs/canvas-poster": ["./packages/core/src/index.ts"]
-    }
-  }
+    ]
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "playground"
+  ]
 }
