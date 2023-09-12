@@ -147,30 +147,62 @@ export class Poster {
     })
   }
 
-  drawTextLetterSpacing = (x: number, y: number, texts: { text: string; width: number }[], shadowConfig?: ShadowConfig) => {
+  renderText = (text: string, x: number, y: number, textConfig: PosterText | PosterEllipsisText) => {
+    const {
+      renderType = 'fill',
+      color = this.defaultColor,
+      strokeColor = this.defaultColor,
+    } = textConfig
+
+    switch (renderType) {
+      case 'stroke':
+        this.context.strokeStyle = strokeColor || color
+        this.context.strokeText(text, x, y)
+        break
+      case 'fillAndStroke':
+        this.context.strokeStyle = strokeColor || color
+        this.context.fillStyle = color
+        this.context.fillText(text, x, y)
+        this.context.strokeText(text, x, y)
+        break
+      case 'strokeAndFill':{
+        this.context.strokeStyle = strokeColor || color
+        this.context.fillStyle = color
+        this.context.strokeText(text, x, y)
+        this.context.fillText(text, x, y)
+        break
+      }
+      default:
+        this.context.fillStyle = color
+        this.context.fillText(text, x, y)
+        break
+    }
+  }
+
+  drawTextLetterSpacing = (x: number, y: number, texts: { text: string; width: number }[], textConfig: PosterText) => {
     let currentX = x
     texts.forEach((item) => {
-      this.drawShadow({ ...shadowConfig })
+      this.drawShadow({ ...textConfig })
       this.context.fillText(item.text, currentX, y)
+      this.renderText(item.text, currentX, y, textConfig)
       currentX += item.width
     })
   }
 
   drawText = async (textConfig: PosterText) => {
-    const { x, y, text, color = this.defaultColor, textBaseline, textAlign, ...shadowConfig } = textConfig || {}
+    const { x, y, text, textBaseline, textAlign } = textConfig || {}
     const font = transformFont(textConfig, this.defaultFont)
     this.context.save()
     this.context.font = font
-    this.context.fillStyle = color
     textBaseline && this.setTextBaseline(textBaseline)
     textAlign && this.setTextAlign(textAlign)
 
     if (textConfig.letterSpacing) {
       const texts = this.generateTextSlice(text, font, textConfig.letterSpacing)
-      this.drawTextLetterSpacing(x, y, texts, shadowConfig)
+      this.drawTextLetterSpacing(x, y, texts, textConfig)
     }
     else {
-      this.context.fillText(text, x, y)
+      this.renderText(text, x, y, textConfig)
     }
     this.context.restore()
   }
@@ -199,13 +231,15 @@ export class Poster {
     let drawY = y
     for (const line of lines) {
       if (!letterSpacing) {
-        this.context.fillText(line, x, drawY)
+        // this.context.fillText(line, x, drawY)
+        this.renderText(line, x, drawY, textConfig)
       }
       else {
         let currentX = x
         texts.forEach((item) => {
           currentX += item.width
-          this.context.fillText(item.text, currentX, y)
+          // this.context.fillText(item.text, currentX, y)
+          this.renderText(item.text, currentX, y, textConfig)
         })
       }
       drawY += fontSize * lineHeight

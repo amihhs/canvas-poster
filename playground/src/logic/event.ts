@@ -10,6 +10,7 @@ export class CanvasControl {
   drawContextMap = new Map<string, CanvasControlLocationJson>()
 
   currentHoverKey: { key: string; index: number } | null = null
+
   constructor(canvas: HTMLCanvasElement, drawContext: DrawJson[] = []) {
     this.canvas = canvas
     this.context = canvas.getContext('2d')!
@@ -22,12 +23,47 @@ export class CanvasControl {
       return console.error('canvas is null')
     useEventListener(this.canvas, 'mousemove', this._mouseMoveHandler)
     useEventListener(this.canvas, 'click', this._clickHandler)
+
+    this._draw()
+  }
+
+  protected _draw = () => {
+    let keyDown = false
+    let position = { x: 0, y: 0 }
+    let item = null
+    const downHandler = (e: MouseEvent) => {
+      keyDown = true
+      item = this.selectItem(this.currentHoverKey?.key || '')
+      position = { x: e.offsetX, y: e.offsetY }
+      console.log(position, item)
+    }
+    const moveHandler = (e: MouseEvent) => {
+      if (!keyDown)
+        return
+      const { x, y } = position
+      const offsetX = e.offsetX - x
+      const offsetY = e.offsetY - y
+      console.log({ offsetX, offsetY }, item)
+      console.log(e)
+    }
+    const upHandler = (e: MouseEvent) => {
+      console.log(e)
+      keyDown = false
+    }
+
+    useEventListener(this.canvas, 'mousedown', downHandler)
+    useEventListener(this.canvas, 'mousemove', moveHandler)
+    useEventListener(this.canvas, 'mouseup', upHandler)
+
+    useEventListener(this.canvas, 'touchstart', downHandler)
+    useEventListener(this.canvas, 'touchmove', moveHandler)
+    useEventListener(this.canvas, 'touchend', upHandler)
   }
 
   protected _mouseMoveHandler = (e: MouseEvent) => {
-    // console.log({ x: e.offsetX, y: e.offsetY })
     const key = this.findCurrentHoveItemKey(e.offsetX, e.offsetY)
     this.currentHoverKey = key || null
+    console.log({ x: e.offsetX, y: e.offsetY }, this.currentHoverKey)
   }
 
   protected _clickHandler = (e: MouseEvent) => {
@@ -50,17 +86,16 @@ export class CanvasControl {
     this.drawContext = json
     const { newJsonMap } = diff(this.drawContextMap, json)
     this.drawContextMap = newJsonMap
+    console.log(this.drawContextMap)
   }
 
-  private isCanvasBgRect = (data: CanvasControlLocationJson) => {
+  isCanvasBgRect = (data: CanvasControlLocationJson) => {
     return data.x === 0 && data.y === 0 && data.width === this.canvas?.clientWidth && data.height === this.canvas?.clientHeight && data.type === PosterType.rect
   }
 
   findCurrentHoveItemKey = (x: number, y: number) => {
     const items = []
     for (const [_, data] of this.drawContextMap) {
-      // if (this.isCanvasBgRect(data))
-      //   continue
       if (x > data.x && x < data.x + data.width && y > data.y && y < data.y + data.height)
         items.push({ key: _, index: data.sort })
     }

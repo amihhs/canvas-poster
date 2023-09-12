@@ -10,6 +10,7 @@ import type {
   ShadowConfig,
 } from '@amihhs/canvas-poster'
 import { PosterType } from '@amihhs/canvas-poster'
+import type { DrawJson } from '@/interface'
 import { ADD_FROM_KEY } from '@/logic/const'
 
 const baseDefault: PosterBaseJson = {
@@ -100,6 +101,14 @@ watch(() => formData.value.type, (type) => {
   }
 })
 provide(ADD_FROM_KEY, formData)
+
+const json = inject<Ref<DrawJson[]>>(CONTENT_JSON_KEY, ref([]))
+const type = ref(PosterType.text)
+const { addJson } = useControlJson()
+function addHandler() {
+  const item = baseForm[type.value]
+  addJson(item)
+}
 </script>
 
 <template>
@@ -107,14 +116,20 @@ provide(ADD_FROM_KEY, formData)
     <form action="">
       <div class="form-item">
         <label class="label">类型</label>
-        <select v-model="formData.type" class="select">
+        <select v-model="type" class="select">
           <option v-for="v in typeSelects" :key="v.value" :value="v.value">
             {{ v.type }}
           </option>
         </select>
       </div>
-      <component :is="components[formData.type]" />
+      <!-- <component :is="components[formData.type]" /> -->
     </form>
+    <button
+      class="mt-10 text-center block w-full tracking-widest text-lg font-bold py-2 rounded-md bg-blue-5 text-white"
+      @click="addHandler()"
+    >
+      添加
+    </button>
   </div>
 </template>
 

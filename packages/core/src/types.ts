@@ -110,6 +110,9 @@ export interface PosterBaseText extends PosterBaseJson, ShadowConfig, FontConfig
   textAlign?: CanvasTextAlign
   // default: 'alphabetic', https://developer.mozilla.org/zh-CN/docs/Web/API/CanvasRenderingContext2D/textBaseline
   textBaseline?: CanvasTextBaseline
+  strokeColor?: string | CanvasGradient | CanvasPattern
+  // default: fill
+  renderType?: 'fill' | 'stroke' | 'fillAndStroke' | 'strokeAndFill'
 }
 export interface PosterText extends PosterBaseText {
   type: PosterType.text

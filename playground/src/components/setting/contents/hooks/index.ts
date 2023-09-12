@@ -1,10 +1,9 @@
-import type { UnwrapNestedRefs } from 'vue'
 import type { DrawJson } from '@/interface'
 
 export function useContentDrag() {
   const dropContainerEl = ref<HTMLElement | null>(null)
   const currentDragEl = ref<HTMLElement | null>(null)
-  const json = inject<UnwrapNestedRefs<DrawJson[]>>(CONTENT_JSON_KEY, [])
+  const json = inject<Ref<DrawJson[]>>(CONTENT_JSON_KEY, ref([]))
 
   function changeJsonSort() {
     if (!dropContainerEl.value)
@@ -13,8 +12,8 @@ export function useContentDrag() {
     const newIndex = childrenNodes.map((el) => {
       return Number(el.getAttribute('value') as unknown as string)
     })
-    const newJson = newIndex.map(index => json[index])
-    json.splice(0, json.length, ...newJson)
+    const newJson = newIndex.map(index => json.value[index])
+    json.value = newJson
   }
 
   function getDragElement(el: HTMLElement): HTMLElement {

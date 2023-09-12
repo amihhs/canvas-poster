@@ -1,4 +1,7 @@
 import type { UnwrapNestedRefs } from 'vue'
+import type {
+  PosterJson,
+} from '@amihhs/canvas-poster'
 import { CURRENT_CHANGE_JSON_KEY, CURRENT_CHANGE_VISIBLE_KEY } from './const'
 import type { DrawJson } from '@/interface'
 
@@ -19,7 +22,8 @@ export function useControlJson() {
     json.splice(index, 1, data)
   }
 
-  function addJson(data: DrawJson, index?: number) {
+  function addJson(data: PosterJson, index?: number) {
+    const id = data.id
     json.splice(index ?? json.length, 0, data)
   }
 
