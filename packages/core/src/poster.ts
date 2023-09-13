@@ -76,6 +76,7 @@ export class Poster {
       height = this.height,
       proxy = this.proxy,
     } = config || {}
+
     this.DPI = scale
     this.content = content
     this.width = width
@@ -85,6 +86,7 @@ export class Poster {
 
     this.canvas.width = this.setDPI(this.width)
     this.canvas.height = this.setDPI(this.height)
+
     this.defaultFont = formatDPI(this.defaultFont, this.DPI)
   }
 
@@ -153,7 +155,6 @@ export class Poster {
       color = this.defaultColor,
       strokeColor = this.defaultColor,
     } = textConfig
-
     switch (renderType) {
       case 'stroke':
         this.context.strokeStyle = strokeColor || color
@@ -411,6 +412,7 @@ export class Poster {
 
   // 生成海报
   create = async (content: PosterJson[] = this.content) => {
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
     for (const i of content) {
       const item = formatDPI(i, this.DPI)
       if (item.type === PosterType.image)

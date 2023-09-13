@@ -3,106 +3,155 @@ import { PosterType } from '@amihhs/canvas-poster'
 import type { DrawJson } from '@/interface'
 
 export type CanvasControlLocationJson = DrawJson & { sort: number }
-export class CanvasControl {
-  canvas: HTMLCanvasElement | null = null
-  context: CanvasRenderingContext2D | null = null
-  drawContext: DrawJson[] = []
-  drawContextMap = new Map<string, CanvasControlLocationJson>()
 
-  currentHoverKey: { key: string; index: number } | null = null
+const defaultChangeContext = {
+  x: 0,
+  y: 0,
+  item: null as CanvasControlLocationJson | null,
+}
+export const drawContextMap = ref<Map<string, CanvasControlLocationJson>>(new Map())
+export const currentHoverKey = ref<{ key: string;index: number } | null>(null)
+/**
+ * @description 当前正在修改的json
+ */
+export const currentChangeJson = ref<DrawJson | null>(null)
+/**
+ * @description 当前正在修改的json的可见性
+ */
+export const jsonChangeDrawerVisible = ref<boolean>(false)
 
-  constructor(canvas: HTMLCanvasElement, drawContext: DrawJson[] = []) {
-    this.canvas = canvas
-    this.context = canvas.getContext('2d')!
-    this.drawContext = drawContext
-    this._initHandler()
-  }
+export const changeStartContext = ref(Object.assign({}, defaultChangeContext))
 
-  protected _initHandler = () => {
-    if (!this.canvas)
+export function canvasBindEvent(canvas: HTMLCanvasElement) {
+  function initHandler(canvas: HTMLCanvasElement) {
+    if (!canvas)
       return console.error('canvas is null')
-    useEventListener(this.canvas, 'mousemove', this._mouseMoveHandler)
-    useEventListener(this.canvas, 'click', this._clickHandler)
-
-    this._draw()
+    useEventListener(canvas, 'mousemove', _mouseMoveHandler)
+    _draw()
   }
 
-  protected _draw = () => {
+  function _draw() {
     let keyDown = false
-    let position = { x: 0, y: 0 }
-    let item = null
+    let item: CanvasControlLocationJson | null = null
+
     const downHandler = (e: MouseEvent) => {
-      keyDown = true
-      item = this.selectItem(this.currentHoverKey?.key || '')
-      position = { x: e.offsetX, y: e.offsetY }
-      console.log(position, item)
-    }
-    const moveHandler = (e: MouseEvent) => {
-      if (!keyDown)
+      if (!currentHoverKey.value)
         return
-      const { x, y } = position
+      keyDown = true
+      const { key, index } = currentHoverKey.value
+      // console.log('downHandler', e, POSTER_JSON)
+
+      item = selectItem(key || '') || null
+      currentChangeJson.value = POSTER_JSON.value[index]
+
+      changeStartContextHandler({
+        x: e.offsetX,
+        y: e.offsetY,
+        item: Object.assign({}, item),
+      })
+    }
+
+    const moveHandler = (e: MouseEvent) => {
+      const { x, y, item } = changeStartContext.value
+
+      if (!keyDown || !item || !currentHoverKey.value)
+        return
+
+      const { index } = currentHoverKey.value
+
       const offsetX = e.offsetX - x
       const offsetY = e.offsetY - y
-      console.log({ offsetX, offsetY }, item)
-      console.log(e)
+
+      const { changeJson } = useControlJson()
+      changeJson(index, 'x', item.x + offsetX)
+      changeJson(index, 'y', item.y + offsetY)
+
+      console.log(unref(currentChangeJson)?.x, unref(currentChangeJson)?.y)
     }
+
     const upHandler = (e: MouseEvent) => {
-      console.log(e)
+      console.log('upHandler', e)
       keyDown = false
     }
 
-    useEventListener(this.canvas, 'mousedown', downHandler)
-    useEventListener(this.canvas, 'mousemove', moveHandler)
-    useEventListener(this.canvas, 'mouseup', upHandler)
+    useEventListener(canvas, 'mousedown', downHandler)
+    useEventListener(canvas, 'mousemove', moveHandler)
+    useEventListener(canvas, 'mouseup', upHandler)
 
-    useEventListener(this.canvas, 'touchstart', downHandler)
-    useEventListener(this.canvas, 'touchmove', moveHandler)
-    useEventListener(this.canvas, 'touchend', upHandler)
+    useEventListener(canvas, 'touchstart', downHandler)
+    useEventListener(canvas, 'touchmove', moveHandler)
+    useEventListener(canvas, 'touchend', upHandler)
+  }
+  function _mouseMoveHandler(e: MouseEvent) {
+    const key = findCurrentHoveItemKey(e.offsetX, e.offsetY)
+    currentHoverKey.value = key || null
+    // console.log({ x: e.offsetX, y: e.offsetY }, this.currentHoverKey)
   }
 
-  protected _mouseMoveHandler = (e: MouseEvent) => {
-    const key = this.findCurrentHoveItemKey(e.offsetX, e.offsetY)
-    this.currentHoverKey = key || null
-    console.log({ x: e.offsetX, y: e.offsetY }, this.currentHoverKey)
+  initHandler(canvas)
+}
+
+export function changeStartContextHandler(data: typeof changeStartContext.value) {
+  changeStartContext.value = data
+}
+
+export function useCurrentChangeJson() {
+  function setCurrentChangeJson(data: DrawJson | null) {
+    currentChangeJson.value = data
+  }
+  function setJsonChangeDrawerVisible(visible: boolean) {
+    jsonChangeDrawerVisible.value = visible
+  }
+  function showChangeJson(index: number, visible = true) {
+    const data = POSTER_JSON.value[index]
+
+    setCurrentChangeJson(data)
+    setJsonChangeDrawerVisible(visible)
   }
 
-  protected _clickHandler = (e: MouseEvent) => {
-    const key = this.findCurrentHoveItemKey(e.offsetX, e.offsetY)
-    if (!key)
-      return
-    this.selectItem(key.key)
+  return {
+    currentChangeJson,
+    jsonChangeDrawerVisible,
+    setCurrentChangeJson,
+    setJsonChangeDrawerVisible,
+    showChangeJson,
   }
+}
 
-  selectItem = (key: string) => {
-    const item = this.drawContextMap.get(key)
-    console.log(item)
+export function findCurrentHoveItemKey(x: number, y: number) {
+  const items = []
+  for (const [_, data] of unref(drawContextMap)) {
+    if (x > data.x && x < data.x + data.width && y > data.y && y < data.y + data.height)
+      items.push({ key: _, index: data.sort })
   }
+  if (!items.length)
+    return null
+  return items.sort((a, b) => b.index - a.index)[0]
+}
 
-  updateDrawContext = (json: DrawJson[]) => {
-    this.diffUpdateDrawContext(json)
-  }
+export function selectItem(key: string) {
+  const item = unref(drawContextMap).get(key)
+  return item
+}
 
-  diffUpdateDrawContext = (json: DrawJson[]) => {
-    this.drawContext = json
-    const { newJsonMap } = diff(this.drawContextMap, json)
-    this.drawContextMap = newJsonMap
-    console.log(this.drawContextMap)
-  }
+export function updateDrawContext(json: DrawJson[]) {
+  diffUpdateDrawContext(json)
+}
+export function isCanvasBgRect(data: CanvasControlLocationJson, canvas: HTMLCanvasElement) {
+  return data.x === 0
+  && data.y === 0
+  && data.width === canvas?.clientWidth
+  && data.height === canvas?.clientHeight
+  && data.type === PosterType.rect
+}
 
-  isCanvasBgRect = (data: CanvasControlLocationJson) => {
-    return data.x === 0 && data.y === 0 && data.width === this.canvas?.clientWidth && data.height === this.canvas?.clientHeight && data.type === PosterType.rect
-  }
+export function toBase64(string: string) {
+  return btoa(string)
+}
 
-  findCurrentHoveItemKey = (x: number, y: number) => {
-    const items = []
-    for (const [_, data] of this.drawContextMap) {
-      if (x > data.x && x < data.x + data.width && y > data.y && y < data.y + data.height)
-        items.push({ key: _, index: data.sort })
-    }
-    if (!items.length)
-      return null
-    return items.sort((a, b) => b.index - a.index)[0]
-  }
+function diffUpdateDrawContext(json: DrawJson[]) {
+  const { newJsonMap } = diff(unref(drawContextMap), json)
+  drawContextMap.value = newJsonMap
 }
 
 function diff(oldJsonMap: Map<string, DrawJson>, newJson: DrawJson[]) {
@@ -124,8 +173,4 @@ function diff(oldJsonMap: Map<string, DrawJson>, newJson: DrawJson[]) {
     newJsonMap,
     removeJsonKeys: Array.from(oldJsonMap.keys()).filter(key => !newJsonMap.has(key)),
   }
-}
-
-export function toBase64(string: string) {
-  return btoa(string)
 }

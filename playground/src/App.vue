@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { RightState } from '@/interface'
 
-const { canvasRef, baseSetting, json } = handler()
+const { canvasRef, baseSetting } = globalInitHandler()
 
 const style = computed(() => ({
   width: `${baseSetting.value.canvasWidth}px`,
@@ -14,16 +14,15 @@ function changeRightState(state: RightState) {
 }
 provide(CANVAS_EL_KEY, canvasRef)
 provide(BASE_SETTING_KEY, baseSetting)
-provide(CONTENT_JSON_KEY, json)
 </script>
 
 <template>
   <div class=" bg-gray-2 p-3">
-    <div class="fixed left-3 top-3 w-25% flex-shrink-0 bg-white h-95vh overflow-auto p-3 rounded-md select-none">
+    <!-- <div class="fixed left-3 top-3 w-25% flex-shrink-0 bg-white h-95vh overflow-auto p-3 rounded-md select-none">
       <h1 class="font-bold text-4.5 border-(b-1 gray-2) pb-3">
         资源
       </h1>
-    </div>
+    </div> -->
     <div class="pt-5 grid place-content-center">
       <canvas ref="canvasRef" class="origin-top-center" :style="style" />
     </div>

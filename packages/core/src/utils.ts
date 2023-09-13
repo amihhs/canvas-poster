@@ -20,7 +20,7 @@ export function transformFont(config: FontConfig, defaultFont: Required<FontConf
     lineHeight = defaultFont.lineHeight,
     fontFamily = defaultFont.fontFamily,
   } = config || {}
-  return `${fontStyle} ${fontWeight} ${fontSize}px/${lineHeight} ${fontFamily}`
+  return `${fontStyle} ${fontWeight} ${fontSize}px/${lineHeight} ${fontFamily || defaultFont.fontFamily}`
 }
 export function objectFitImage(
   context: CanvasRenderingContext2D,

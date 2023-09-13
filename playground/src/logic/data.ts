@@ -1,30 +1,36 @@
-import type { UnwrapNestedRefs } from 'vue'
+import { v4 as uuidv4 } from 'uuid'
 import type {
   PosterJson,
 } from '@amihhs/canvas-poster'
-import { CURRENT_CHANGE_JSON_KEY, CURRENT_CHANGE_VISIBLE_KEY } from './const'
 import type { DrawJson } from '@/interface'
 
 export function useControlJson() {
-  const json = inject<UnwrapNestedRefs<DrawJson[]>>(CONTENT_JSON_KEY, [])
-
-  function deleteJson(index: number, confirm = false) {
-    if (confirm && !window.confirm('确定删除吗？')) // eslint-disable-line no-alert
-      return
-    json.splice(index, 1)
+  function deleteJson(index: number, _confirm = false) {
+    // if (_confirm && !window.confirm('确定删除吗？')) // eslint-disable-line no-alert
+    //   return
+    POSTER_JSON.value.splice(index, 1)
   }
 
-  function changeJson<KEY extends keyof DrawJson>(index: number, key: KEY, data: DrawJson[KEY]) {
-    json[index][key] = data
+  function changeJson<KEY extends keyof DrawJson>(index: number, key: KEY, data: DrawJson[KEY]): DrawJson {
+    POSTER_JSON.value[index][key] = data
+
+    return POSTER_JSON.value[index]
   }
 
-  function updateJson(index: number, data: DrawJson) {
-    json.splice(index, 1, data)
+  function updateJson(index: number, data: DrawJson): DrawJson {
+    POSTER_JSON.value.splice(index, 1, data)
+    return data
   }
 
-  function addJson(data: PosterJson, index?: number) {
-    const id = data.id
-    json.splice(index ?? json.length, 0, data)
+  function addJson(data: PosterJson, index?: number): DrawJson {
+    const id = uuidv4()
+    const item = { ...data, id }
+    if (index === undefined || POSTER_JSON.value.length === 0)
+      POSTER_JSON.value.push(item)
+    else
+      POSTER_JSON.value.splice(index ?? POSTER_JSON.value.length, 0, item)
+
+    return item
   }
 
   return {
@@ -32,34 +38,5 @@ export function useControlJson() {
     changeJson,
     updateJson,
     deleteJson,
-  }
-}
-
-export function useCurrentChangeJson() {
-  const json = inject<UnwrapNestedRefs<DrawJson[]>>(CONTENT_JSON_KEY, [])
-
-  const currentChangeJson = ref<DrawJson | null>(null)
-  const jsonChangeDrawerVisible = ref<boolean>(false)
-  provide(CURRENT_CHANGE_JSON_KEY, currentChangeJson)
-  provide(CURRENT_CHANGE_VISIBLE_KEY, jsonChangeDrawerVisible)
-  function setCurrentChangeJson(data: DrawJson | null) {
-    currentChangeJson.value = data
-  }
-  function setJsonChangeDrawerVisible(visible: boolean) {
-    jsonChangeDrawerVisible.value = visible
-  }
-  function showChangeJson(index: number, visible = true) {
-    const data = json[index]
-
-    setCurrentChangeJson(data)
-    setJsonChangeDrawerVisible(visible)
-  }
-
-  return {
-    currentChangeJson,
-    jsonChangeDrawerVisible,
-    setCurrentChangeJson,
-    setJsonChangeDrawerVisible,
-    showChangeJson,
   }
 }

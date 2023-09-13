@@ -10,8 +10,6 @@ import type {
   ShadowConfig,
 } from '@amihhs/canvas-poster'
 import { PosterType } from '@amihhs/canvas-poster'
-import type { DrawJson } from '@/interface'
-import { ADD_FROM_KEY } from '@/logic/const'
 
 const baseDefault: PosterBaseJson = {
   x: 0,
@@ -20,8 +18,7 @@ const baseDefault: PosterBaseJson = {
   height: 100,
 }
 const baseFont: FontConfig = {
-  fontSize: 12,
-  fontFamily: '',
+  fontSize: 14,
   fontWeight: 'normal',
   fontStyle: 'normal',
   lineHeight: 1,
@@ -80,34 +77,12 @@ const baseForm = {
   image: lineDefaultForm,
 } as Record<PosterType, PosterJson>
 
-const components = {
-  line: defineAsyncComponent(() => import('@/components/add/line.vue')),
-  rect: defineAsyncComponent(() => import('@/components/add/rect.vue')),
-  text: defineAsyncComponent(() => import('@/components/add/text.vue')),
-  textEllipsis: defineAsyncComponent(() => import('@/components/add/text-ellipsis.vue')),
-  image: defineAsyncComponent(() => import('@/components/add/image.vue')),
-} as Record<PosterType, Component>
-
-const formData = ref({
-  type: PosterType.text,
-})
-watch(() => formData.value.type, (type) => {
-  const currentKeys = Object.keys(formData.value)
-  const needKeys = Object.keys(baseForm[type])
-  switch (type) {
-    case PosterType.line:
-      provide(ADD_FROM_KEY, lineDefaultForm)
-      break
-  }
-})
-provide(ADD_FROM_KEY, formData)
-
-const json = inject<Ref<DrawJson[]>>(CONTENT_JSON_KEY, ref([]))
 const type = ref(PosterType.text)
 const { addJson } = useControlJson()
+const { setCurrentChangeJson } = useCurrentChangeJson()
 function addHandler() {
-  const item = baseForm[type.value]
-  addJson(item)
+  const item = addJson(baseForm[type.value])
+  setCurrentChangeJson(item)
 }
 </script>
 
@@ -122,7 +97,6 @@ function addHandler() {
           </option>
         </select>
       </div>
-      <!-- <component :is="components[formData.type]" /> -->
     </form>
     <button
       class="mt-10 text-center block w-full tracking-widest text-lg font-bold py-2 rounded-md bg-blue-5 text-white"
