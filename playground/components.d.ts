@@ -12,7 +12,6 @@ declare module 'vue' {
     AddRect: typeof import('./src/components/add/rect.vue')['default']
     AddText: typeof import('./src/components/add/text.vue')['default']
     AddTextEllipsis: typeof import('./src/components/add/text-ellipsis.vue')['default']
-    copy: typeof import('./src/components/add/line copy.vue')['default']
     SettingAdd: typeof import('./src/components/setting/add.vue')['default']
     SettingBase: typeof import('./src/components/setting/base.vue')['default']
     SettingContents: typeof import('./src/components/setting/contents/index.vue')['default']

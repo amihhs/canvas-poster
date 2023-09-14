@@ -1,7 +1,32 @@
 <script setup lang="ts">
 import type { RightState } from '@/interface'
 
+const menuTabs = [
+  {
+    title: '基础设置',
+    type: 'base',
+    icon: 'i-carbon:settings',
+  },
+  {
+    title: '全部内容',
+    type: 'list',
+    icon: 'i-material-symbols:list-alt-outline-rounded',
+  },
+  {
+    title: '详细参数',
+    type: 'edit',
+    icon: 'i-fluent:content-settings-24-regular',
+  },
+  {
+    title: '添加',
+    type: 'add',
+    icon: 'i-carbon:add',
+  },
+] as const
+
 const { canvasRef, baseSetting } = globalInitHandler()
+provide(CANVAS_EL_KEY, canvasRef)
+provide(BASE_SETTING_KEY, baseSetting)
 
 const style = computed(() => ({
   width: `${baseSetting.value.canvasWidth}px`,
@@ -12,8 +37,11 @@ const rightState = ref<RightState>('add')
 function changeRightState(state: RightState) {
   rightState.value = state
 }
-provide(CANVAS_EL_KEY, canvasRef)
-provide(BASE_SETTING_KEY, baseSetting)
+
+watch(CURRENT_CHANGE_JSON, () => {
+  if (unref(CURRENT_CHANGE_JSON))
+    rightState.value = 'edit'
+})
 </script>
 
 <template>
@@ -27,15 +55,15 @@ provide(BASE_SETTING_KEY, baseSetting)
       <canvas ref="canvasRef" class="origin-top-center" :style="style" />
     </div>
     <div class="fixed right-3 top-3 w-25% flex-shrink-0 bg-white h-95vh overflow-auto p-3 rounded-md select-none ">
-      <div class="grid grid-cols-5 justify-items-center text-5 pb-1 mb-3 border-(b-3 slate-2)">
-        <div class="cursor-pointer " title="基础设置" @click="changeRightState('base')">
-          <i class="i-carbon:settings" />
-        </div>
-        <div class="cursor-pointer" title="全部内容" @click="changeRightState('content')">
-          <i class="i-fluent:content-view-24-regular" />
-        </div>
-        <div class="cursor-pointer" title="添加" @click="changeRightState('add')">
-          <i class="i-carbon:add" />
+      <div class="grid grid-cols-5 gap-2 justify-items-center text-5 mb-3 border-(b-3 slate-2)">
+        <div
+          v-for="v in menuTabs" :key="v.type"
+          class="cursor-pointer rounded-t-md w-full grid place-content-center py-2"
+          :class="[v.type === rightState ? 'bg-teal-6 text-white' : 'bg-slate-2 ']"
+          :title="v.title"
+          @click="changeRightState(v.type)"
+        >
+          <i :class="v.icon" />
         </div>
       </div>
       <div v-if="rightState === 'base'">
@@ -44,7 +72,7 @@ provide(BASE_SETTING_KEY, baseSetting)
         </h1>
         <SettingBase />
       </div>
-      <div v-else-if="rightState === 'content'" class="flex flex-col h-[calc(95vh-4.75rem)]">
+      <div v-else-if="rightState === 'list'" class="flex flex-col h-[calc(95vh-4.75rem)]">
         <h1 class="font-bold text-4 flex-shrink-0">
           全部内容
         </h1>
@@ -58,7 +86,7 @@ provide(BASE_SETTING_KEY, baseSetting)
       </div>
       <div v-else-if="rightState === 'edit'">
         <h1 class="font-bold text-4">
-          内容编辑
+          详细参数
         </h1>
         <SettingEdit />
       </div>

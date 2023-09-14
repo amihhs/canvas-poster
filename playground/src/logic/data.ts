@@ -1,42 +1,70 @@
-import { v4 as uuidv4 } from 'uuid'
 import type {
+  FontConfig,
+  PosterBaseJson,
+  PosterBaseText,
   PosterJson,
+  PosterLine,
+  PosterRect,
+  PosterText,
+  ShadowConfig,
 } from '@amihhs/canvas-poster'
-import type { DrawJson } from '@/interface'
 
-export function useControlJson() {
-  function deleteJson(index: number, _confirm = false) {
-    // if (_confirm && !window.confirm('确定删除吗？')) // eslint-disable-line no-alert
-    //   return
-    POSTER_JSON.value.splice(index, 1)
-  }
+import { PosterType } from '@amihhs/canvas-poster'
 
-  function changeJson<KEY extends keyof DrawJson>(index: number, key: KEY, data: DrawJson[KEY]): DrawJson {
-    POSTER_JSON.value[index][key] = data
-
-    return POSTER_JSON.value[index]
-  }
-
-  function updateJson(index: number, data: DrawJson): DrawJson {
-    POSTER_JSON.value.splice(index, 1, data)
-    return data
-  }
-
-  function addJson(data: PosterJson, index?: number): DrawJson {
-    const id = uuidv4()
-    const item = { ...data, id }
-    if (index === undefined || POSTER_JSON.value.length === 0)
-      POSTER_JSON.value.push(item)
-    else
-      POSTER_JSON.value.splice(index ?? POSTER_JSON.value.length, 0, item)
-
-    return item
-  }
-
-  return {
-    addJson,
-    changeJson,
-    updateJson,
-    deleteJson,
-  }
+const baseDefault: PosterBaseJson = {
+  x: 0,
+  y: 0,
+  width: 100,
+  height: 100,
 }
+const baseFont: FontConfig = {
+  fontSize: 14,
+  fontWeight: 'normal',
+  fontStyle: 'normal',
+  lineHeight: 1,
+}
+const baseShadow: ShadowConfig = {
+  shadowColor: '#000',
+  shadowBlur: undefined,
+  shadowOffsetX: undefined,
+  shadowOffsetY: undefined,
+}
+const baseText: PosterBaseText = {
+  text: 'Hello World',
+  ...baseFont,
+  color: '#000',
+  textAlign: 'left',
+  textBaseline: 'top',
+  letterSpacing: 1,
+  ...baseShadow,
+  ...baseDefault,
+}
+
+const lineDefaultForm: PosterLine = {
+  type: PosterType.line,
+  ...baseDefault,
+  paths: [],
+  color: '#000',
+  lineWidth: 1,
+  lineDash: [0, 0],
+}
+const rectDefaultForm: PosterRect = {
+  type: PosterType.rect,
+  ...baseDefault,
+  ...baseShadow,
+  boxRadius: 0,
+  bgColor: '#000',
+  opacity: 1,
+}
+const textDefaultForm: PosterText = {
+  type: PosterType.text,
+  ...baseText,
+}
+
+export const JSON_BASE_FORM = {
+  line: lineDefaultForm,
+  rect: rectDefaultForm,
+  text: textDefaultForm,
+  textEllipsis: lineDefaultForm,
+  image: lineDefaultForm,
+} as Record<PosterType, PosterJson>
