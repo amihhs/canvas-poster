@@ -50,6 +50,7 @@ declare global {
   const defaultChangeContext: typeof import('./src/logic/const')['defaultChangeContext']
   const defineAsyncComponent: typeof import('vue')['defineAsyncComponent']
   const defineComponent: typeof import('vue')['defineComponent']
+  const defineModel: typeof import('vue')['defineModel']
   const diff: typeof import('./src/logic/utils')['diff']
   const diffUpdateDrawContext: typeof import('./src/logic/utils')['diffUpdateDrawContext']
   const eagerComputed: typeof import('@vueuse/core')['eagerComputed']

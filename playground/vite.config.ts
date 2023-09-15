@@ -18,10 +18,20 @@ export default defineConfig({
     },
   },
   plugins: [
-    vue(),
+    vue({
+      script: {
+        defineModel: true,
+      },
+    }),
     Unocss(),
     AutoImport({
-      imports: ['@vueuse/core', 'vue'],
+      imports: [
+        '@vueuse/core',
+        'vue',
+        {
+          vue: ['defineModel'],
+        },
+      ],
       dts: true,
       dirs: ['./src/logic', './src/interface'],
     }),

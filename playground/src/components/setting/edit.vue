@@ -1,7 +1,24 @@
 <script setup lang='ts'>
+import { PosterType } from '@amihhs/canvas-poster'
 
+const itemType = computed(() => {
+  return CURRENT_CHANGE_JSON.value ? CURRENT_CHANGE_JSON.value.type : null
+})
+
+const components = {
+  [PosterType.image]: defineAsyncComponent(() => import('@/components/element/image.vue')),
+  [PosterType.text]: defineAsyncComponent(() => import('@/components/element/text.vue')),
+  [PosterType.textEllipsis]: defineAsyncComponent(() => import('@/components/element/text-ellipsis.vue')),
+  [PosterType.rect]: defineAsyncComponent(() => import('@/components/element/rect.vue')),
+  [PosterType.line]: defineAsyncComponent(() => import('@/components/element/line.vue')),
+}
 </script>
 
 <template>
-  <div>content-edit</div>
+  <div v-if="itemType">
+    <component :is="components[itemType]" />
+  </div>
+  <div v-else>
+    <div>请先选择一个内容</div>
+  </div>
 </template>
