@@ -1,4 +1,6 @@
 import type {
+  CanvasContext,
+  CanvasElement,
   FontConfig,
   PosterBaseRect,
   PosterConfig,
@@ -24,8 +26,8 @@ const DEFAULT_FONT: Required<FontConfig> = {
   lineHeight: 1,
 }
 export class Poster {
-  canvas: HTMLCanvasElement
-  context: CanvasRenderingContext2D
+  canvas: CanvasElement
+  context: CanvasContext
   width = 320
   height = 452
   DPI = 2
@@ -37,16 +39,22 @@ export class Poster {
 
   proxyImageCache: Map<string, string> = new Map()
 
-  constructor(config?: PosterConfig, canvasEl?: HTMLCanvasElement) {
-    this.canvas = canvasEl || this.createCanvas()
+  constructor(config: PosterConfig = {}, canvasEl?: HTMLCanvasElement) {
+    const { useOffscreenCanvas = false } = config
+    this.canvas = canvasEl || this.createCanvas(useOffscreenCanvas)
+
     this.context = this.canvas.getContext('2d')!
 
     this.resize(config)
   }
 
-  private createCanvas = () => {
-    if (!document)
+  private createCanvas = (useOffscreenCanvas = false) => {
+    if (!document && !useOffscreenCanvas)
       throw new Error('document is not found')
+
+    if (useOffscreenCanvas)
+      return new OffscreenCanvas(this.width, this.height)
+
     const canvas = document.createElement('canvas')
     return canvas
   }
@@ -74,6 +82,7 @@ export class Poster {
       content = this.content,
       width = this.width,
       height = this.height,
+      defaultFont = this.defaultFont,
       proxy = this.proxy,
     } = config || {}
 
@@ -81,13 +90,16 @@ export class Poster {
     this.content = content
     this.width = width
     this.height = height
+
+    this.canvas.width = this.setDPI(width)
+    this.canvas.height = this.setDPI(height)
+    this.defaultFont = Object.assign({}, DEFAULT_FONT, defaultFont)
     // image proxy loader
     this.proxy = proxy
 
-    this.canvas.width = this.setDPI(this.width)
-    this.canvas.height = this.setDPI(this.height)
+    this.context.scale(this.DPI, this.DPI)
 
-    this.defaultFont = formatDPI(this.defaultFont, this.DPI)
+    // this.context.save()
   }
 
   setDefault = (key: 'fontFamily' | 'color', value: string) => {
@@ -414,7 +426,7 @@ export class Poster {
   create = async (content: PosterJson[] = this.content) => {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
     for (const i of content) {
-      const item = formatDPI(i, this.DPI)
+      const item = i
       if (item.type === PosterType.image)
         await this.drawImage(item)
 
@@ -433,37 +445,6 @@ export class Poster {
 
     return this.canvas
   }
-}
-
-const baseTransformKeys = ['x', 'y', 'width', 'height']
-const textTransformKeys = ['fontSize', 'letterSpacing']
-const rectTransformKeys = ['shadowBlur', 'shadowOffsetX', 'shadowOffsetY', 'boxRadius']
-const lineTransformKeys = ['lineDash', 'lineWidth', 'paths']
-const needTransformKeys = [
-  ...baseTransformKeys,
-  ...textTransformKeys,
-  ...rectTransformKeys,
-  ...lineTransformKeys,
-]
-function formatDPI<T extends object>(item: T, dpi = 1): T {
-  const newJson: T = { ...item }
-  for (const key in item) {
-    const value = item[key]
-    if (needTransformKeys.includes(key))
-      newJson[key] = transformDPI(value, dpi)
-    else
-      newJson[key] = value
-  }
-
-  return newJson
-}
-function transformDPI<T>(value: T, dpi = 1): T {
-  if (typeof value === 'number')
-    return value * dpi as T
-  else if (Array.isArray(value))
-    return value.map(v => transformDPI(v, dpi)) as T
-  else
-    return value
 }
 
 /**

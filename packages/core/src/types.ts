@@ -1,3 +1,6 @@
+export type CanvasElement = OffscreenCanvas | HTMLCanvasElement
+export type CanvasContext = CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D | RenderingContext
+
 export enum PosterType {
   line = 'line',
   image = 'image',
@@ -6,6 +9,7 @@ export enum PosterType {
   rect = 'rect',
 }
 export interface PosterConfig {
+  useOffscreenCanvas?: boolean
   // default: 320
   width?: number
   // default: 452
@@ -13,6 +17,7 @@ export interface PosterConfig {
   // default: 2
   scale?: number
   content?: PosterJson[]
+  defaultFont?: Partial<FontConfig>
   proxy?: (src: string) => Promise<string>
 }
 export interface PosterContext {

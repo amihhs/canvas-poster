@@ -1,4 +1,4 @@
-import type { FontConfig, PosterImage } from './types'
+import type { CanvasContext, FontConfig, PosterImage } from './types'
 
 export const isFunction = (val: unknown): val is (...args: any[]) => any => typeof val === 'function'
 
@@ -23,7 +23,7 @@ export function transformFont(config: FontConfig, defaultFont: Required<FontConf
   return `${fontStyle} ${fontWeight} ${fontSize}px/${lineHeight} ${fontFamily || defaultFont.fontFamily}`
 }
 export function objectFitImage(
-  context: CanvasRenderingContext2D,
+  context: CanvasContext,
   config: PosterImage,
   img: HTMLImageElement,
   imageWidth: number,
