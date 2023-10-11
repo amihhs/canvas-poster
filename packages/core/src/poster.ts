@@ -33,6 +33,8 @@ export class Poster {
   defaultFont: Required<FontConfig> = { ...DEFAULT_FONT }
   defaultColor = '#000'
 
+  // image proxy是否开启
+  cors = true
   proxy?: (src: string) => Promise<string> = undefined
 
   proxyImageCache: Map<string, string> = new Map()
@@ -75,8 +77,10 @@ export class Poster {
       width = this.width,
       height = this.height,
       proxy = this.proxy,
+      cors = this.cors,
     } = config || {}
 
+    this.cors = cors
     this.DPI = scale
     this.content = content
     this.width = width
@@ -103,50 +107,80 @@ export class Poster {
 
   drawImage = async (config: PosterImage) => {
     const { src } = config || {}
-    const img = new Image()
-    img.setAttribute('crossOrigin', 'anonymous')
-    img.setAttribute('src', src)
 
     let isProxy = false
     let imageWidth = 0
     let imageHeight = 0
+    const handler = (img: HTMLImageElement, resolve: (value: unknown) => void, status = true) => {
+      this.context.save()
 
-    await new Promise((resolve) => {
-      img.onload = () => {
-        this.context.save()
+      // 绘制阴影
+      this.drawShadow(config)
+      // 绘制圆角矩形
+      this.drawRadius(config, true)
+      imageWidth = img.width
+      imageHeight = img.height
+      objectFitImage(this.context, config, img, imageWidth, imageHeight)
+      this.context.restore()
+      resolve(status)
+    }
+    const anonymousLoadImage = () => {
+      return new Promise((resolve, reject) => {
+        const img = new Image()
+        img.setAttribute('crossOrigin', 'anonymous')
+        img.setAttribute('src', src)
 
-        // 绘制阴影
-        this.drawShadow(config)
-        // 绘制圆角矩形
-        this.drawRadius(config, true)
-        imageWidth = img.width
-        imageHeight = img.height
-        objectFitImage(this.context, config, img, imageWidth, imageHeight)
-        this.context.restore()
-        resolve(true)
-      }
-      img.onerror = async (error) => {
-        if (!this.proxy || !isFunction(this.proxy) || isProxy) {
-          console.error('error', error)
-          return resolve(false)
+        img.onload = () => {
+          handler(img, resolve, true)
         }
+        img.onerror = async (error) => {
+          if (!this.proxy || !isFunction(this.proxy) || isProxy) {
+            console.error('error', error)
+            return reject(error)
+          }
 
-        isProxy = true
-        const cache = this.proxyImageCache.get(src)
-        if (cache)
-          return img.setAttribute('src', cache)
+          isProxy = true
+          const cache = this.proxyImageCache.get(src)
+          if (cache)
+            return img.setAttribute('src', cache)
 
-        // eslint-disable-next-line no-console
-        console.info('proxy image:', src)
-        await this.proxy(src).then((res) => {
-          img.setAttribute('src', res)
-          this.proxyImageCache.set(src, res)
-        }).catch((err) => {
-          console.error('proxy image error:', err)
-          resolve(false)
-        })
+          // eslint-disable-next-line no-console
+          console.info('proxy image:', src)
+          await this.proxy(src).then((res) => {
+            img.setAttribute('src', res)
+            this.proxyImageCache.set(src, res)
+          }).catch((err) => {
+            console.error('proxy image error:', err)
+            // handler(false)
+            reject(error)
+          })
+        }
+      })
+    }
+
+    const normalLoadImage = () => {
+      return new Promise((resolve, reject) => {
+        const img = new Image()
+        img.setAttribute('src', src)
+        img.onload = () => {
+          handler(img, resolve, true)
+        }
+        img.onerror = (error) => {
+          reject(error)
+        }
+      })
+    }
+    let status = false
+    if (this.proxy && this.cors) {
+      try {
+        await anonymousLoadImage()
+        status = true
       }
-    })
+      catch {
+        status = false
+      }
+    }
+    !status && await normalLoadImage()
   }
 
   renderText = (text: string, x: number, y: number, textConfig: PosterText | PosterEllipsisText) => {

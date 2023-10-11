@@ -13,6 +13,7 @@ export interface PosterConfig {
   // default: 2
   scale?: number
   content?: PosterJson[]
+  cors?: boolean
   proxy?: (src: string) => Promise<string>
 }
 export interface PosterContext {
