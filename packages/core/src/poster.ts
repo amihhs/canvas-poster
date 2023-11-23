@@ -107,6 +107,8 @@ export class Poster {
 
   drawImage = async (config: PosterImage) => {
     const { src } = config || {}
+    if (!src)
+      return
 
     let isProxy = false
     let imageWidth = 0
