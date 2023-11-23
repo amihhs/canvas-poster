@@ -18,6 +18,7 @@ export interface PosterConfig {
   scale?: number
   content?: PosterJson[]
   defaultFont?: Partial<FontConfig>
+  cors?: boolean
   proxy?: (src: string) => Promise<string>
 }
 export interface PosterContext {
