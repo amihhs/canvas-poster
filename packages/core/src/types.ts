@@ -1,5 +1,26 @@
-export type CanvasElement = OffscreenCanvas | HTMLCanvasElement
-export type CanvasContext = CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D | RenderingContext
+export type CanvasElement = HTMLCanvasElement
+export type CanvasContext = CanvasRenderingContext2D
+
+export interface _Config extends Required<Omit<PosterConfig, 'defaultFont'>> {
+  defaultFont: Required<FontConfig>
+  scaleWidth: number
+  scaleHeight: number | 'auto'
+}
+
+export interface PosterConfig {
+  // default: 375
+  width?: number
+  // default: auto
+  height?: number | 'auto'
+  // default: 2
+  dpi?: number
+  // default font style for text
+  defaultFont?: Partial<FontConfig>
+  // if true, will set crossOrigin to 'anonymous'; default: true
+  cors?: boolean
+  // when cors is true and image load error, will use this proxy to get image
+  proxy?: ((src: string) => Promise<string>) | null
+}
 
 export enum PosterType {
   line = 'line',
@@ -8,28 +29,24 @@ export enum PosterType {
   textEllipsis = 'textEllipsis', // 截取文本绘制
   rect = 'rect',
 }
-export interface PosterConfig {
-  useOffscreenCanvas?: boolean
-  // default: 320
-  width?: number
-  // default: 452
-  height?: number
-  // default: 2
-  scale?: number
-  content?: PosterJson[]
-  defaultFont?: Partial<FontConfig>
-  cors?: boolean
-  proxy?: (src: string) => Promise<string>
-}
+
 export interface PosterContext {
-  width: number
-  height: number
-  dpi: number
-  canvasContext: CanvasRenderingContext2D
-  defaultFont: Required<FontConfig>
+  config: _Config
+  canvas: CanvasElement
+  context: CanvasRenderingContext2D
   font: (config: FontConfig) => string
-  getTextWidth: (text: string, font: string, letterSpacing?: number) => number
-  getTextLineCount: (width: number, text: string, font: string, letterSpacing?: number) => number
+  calcTextWidth: (text: string, font: string, letterSpacing?: number) => number
+  calcTextLineCount: (options: CalcTextLineCountOptions) => number
+}
+
+export interface CalcTextLineCountOptions {
+  text: string
+  font: FontConfig
+  width?: number
+  height?: number
+  lineHeight?: number
+  letterSpacing?: number
+  direction?: 'horizontal' | 'vertical'
 }
 
 export type PosterGenerateDrawFn = (context: PosterContext) => Promise<PosterJson>
