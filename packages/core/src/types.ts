@@ -1,44 +1,6 @@
 export type CanvasElement = HTMLCanvasElement
 export type CanvasContext = CanvasRenderingContext2D
 
-export interface _Config extends Required<Omit<PosterConfig, 'defaultFont'>> {
-  defaultFont: Required<FontConfig>
-  scaleWidth: number
-  scaleHeight: number | 'auto'
-}
-
-export interface PosterConfig {
-  // default: 375
-  width?: number
-  // default: auto
-  height?: number | 'auto'
-  // default: 2
-  dpi?: number
-  // default font style for text
-  defaultFont?: Partial<FontConfig>
-  // if true, will set crossOrigin to 'anonymous'; default: true
-  cors?: boolean
-  // when cors is true and image load error, will use this proxy to get image
-  proxy?: ((src: string) => Promise<string>) | null
-}
-
-export enum PosterType {
-  line = 'line',
-  image = 'image',
-  text = 'text',
-  textEllipsis = 'textEllipsis', // 截取文本绘制
-  rect = 'rect',
-}
-
-export interface PosterContext {
-  config: _Config
-  canvas: CanvasElement
-  context: CanvasRenderingContext2D
-  font: (config: FontConfig) => string
-  calcTextWidth: (text: string, font: string, letterSpacing?: number) => number
-  calcTextLineCount: (options: CalcTextLineCountOptions) => number
-}
-
 export interface CalcTextLineCountOptions {
   text: string
   font: FontConfig
@@ -48,8 +10,24 @@ export interface CalcTextLineCountOptions {
   letterSpacing?: number
   direction?: 'horizontal' | 'vertical'
 }
+export interface SliceText {
+  text: string
+  width: number
+  height: number
+}
 
-export type PosterGenerateDrawFn = (context: PosterContext) => Promise<PosterJson>
+export interface PosterContext {
+  config: _Config
+  canvas: CanvasElement
+  context: CanvasRenderingContext2D
+  font: (config: FontConfig) => string
+  updateConfig: (cfg: Partial<PosterConfig>) => void
+  sliceText: (data: Omit<CalcTextLineCountOptions, 'width' | 'height' | 'direction'>) => SliceText[]
+  calcDPI: (data: number) => number
+  calcTextWidth: (text: string, font: string, letterSpacing?: number) => number
+  calcTextLineCount: (options: CalcTextLineCountOptions) => number
+}
+
 export interface FontConfig {
   // default: 14
   fontSize?: number
@@ -62,10 +40,43 @@ export interface FontConfig {
   // default: 1.2
   lineHeight?: number
 }
+
+export interface PosterConfig {
+  // default: 375
+  width?: number
+  // default: auto
+  height?: number | 'auto'
+  // default: 2
+  dpi?: number
+  // default font style for text
+  defaultFont?: Partial<FontConfig>
+  // default: '#000000'
+  defaultColor?: string
+  // if true, will set crossOrigin to 'anonymous'; default: true
+  cors?: boolean
+  // when cors is true and image load error, will use this proxy to get image
+  proxy?: ((src: string) => Promise<string>) | null
+}
+export interface _Config extends Required<Omit<PosterConfig, 'defaultFont'>> {
+  defaultFont: Required<FontConfig>
+  scaleWidth: number
+  scaleHeight: number | 'auto'
+}
+
+export enum PosterType {
+  line = 'line',
+  image = 'image',
+  text = 'text',
+  textEllipsis = 'textEllipsis', // 截取文本绘制
+  rect = 'rect',
+}
+
+export type PosterGenerateDrawFn = (context: PosterContext) => Promise<PosterJson>
+
 /**
  * 画布元素
  */
-export type PosterJson = PosterImage | PosterText | PosterEllipsisText | PosterRect | PosterLine
+export type PosterJson = PosterImage | PosterText | PosterRect | PosterLine
 /**
  * 画布元素基础类型
  */
@@ -79,7 +90,7 @@ export interface PosterBaseJson {
  * box-radius
  */
 export interface RadiusConfig {
-  // 圆角半径， default: 0
+  // radius default: 0
   boxRadius?: number
 }
 /**
@@ -91,7 +102,9 @@ export interface ShadowConfig {
   shadowOffsetX?: number
   shadowOffsetY?: number
 }
-export interface PosterBaseRect extends RadiusConfig, ShadowConfig, PosterBaseJson {}
+export interface PosterBaseRect extends RadiusConfig, ShadowConfig, PosterBaseJson {
+  clip?: boolean
+}
 export interface PosterRect extends PosterBaseRect {
   type: PosterType.rect
   // default: none
@@ -139,11 +152,6 @@ export interface PosterBaseText extends PosterBaseJson, ShadowConfig, FontConfig
 }
 export interface PosterText extends PosterBaseText {
   type: PosterType.text
-}
-export interface PosterEllipsisText extends PosterBaseText {
-  type: PosterType.textEllipsis
-  width: number
-  height: number
-  // default: '...'
-  ellipsis?: string
+  // default: false. If true, will use '...' to replace the overflow text
+  ellipsis?: string | boolean
 }

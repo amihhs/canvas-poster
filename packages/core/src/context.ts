@@ -4,14 +4,27 @@ import type {
   FontConfig,
   PosterConfig,
   PosterContext,
+  SliceText,
   _Config,
 } from './types'
 import { transformFont } from './utils'
+import { resolveConfig } from './config'
 
 export function createContext(config: _Config, canvasEl?: CanvasElement): PosterContext {
   const canvas = canvasEl || createCanvas(config)
   const context = canvas.getContext('2d')!
 
+  function updateConfig(cfg: Partial<PosterConfig>) {
+    config = resolveConfig(cfg)
+
+    canvas.width = calcDPI(config.width)
+    canvas.height = calcDPI(config.height === 'auto' ? config.width : config.height)
+    context.scale(config.dpi, config.dpi)
+  }
+
+  function calcDPI(data: number) {
+    return data * config.dpi
+  }
   const calcTextWidth = (text: string, font: string, letterSpacing = 0) => {
     context.save()
     context.font = font
@@ -26,14 +39,14 @@ export function createContext(config: _Config, canvasEl?: CanvasElement): Poster
   /**
    * Sliced text content
    */
-  const generateTextSlice = (data: Omit<CalcTextLineCountOptions, 'width' | 'height' | 'direction'>) => {
+  const sliceText = (data: Omit<CalcTextLineCountOptions, 'width' | 'height' | 'direction'>) => {
     const { text = '', font = {}, letterSpacing = 0 } = data
 
     const fontConfig = Object.assign({}, config.defaultFont, font)
     const textFont = transformFont(font, config.defaultFont)
     const lineHeight = fontConfig.fontSize * (data.lineHeight || fontConfig.lineHeight)
 
-    const texts: { text: string; width: number; height: number }[] = []
+    const texts: SliceText[] = []
     for (const t of text.split('')) {
       const textWidth = calcTextWidth(t, textFont, letterSpacing)
       const textHeight = lineHeight
@@ -48,7 +61,7 @@ export function createContext(config: _Config, canvasEl?: CanvasElement): Poster
   }
 
   const calcTextLineCount = (data: CalcTextLineCountOptions) => {
-    const texts = generateTextSlice(data)
+    const texts = sliceText(data)
 
     const { width = config.width, height = config.height } = data
 
@@ -79,7 +92,10 @@ export function createContext(config: _Config, canvasEl?: CanvasElement): Poster
     config,
     canvas,
     context,
+    updateConfig,
     font: (cfg: FontConfig) => transformFont(cfg, config.defaultFont),
+    sliceText,
+    calcDPI,
     calcTextWidth,
     calcTextLineCount,
   }

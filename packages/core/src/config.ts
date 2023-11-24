@@ -13,6 +13,7 @@ export const DEFAULT_CONFIG: _Config = {
   dpi: 2,
   cors: true,
   defaultFont: Object.assign({}, DEFAULT_FONT),
+  defaultColor: '#000000',
   proxy: null,
   scaleWidth: 375 * 2,
   scaleHeight: 'auto',

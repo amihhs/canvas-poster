@@ -2,7 +2,7 @@
   "name": "@amihhs/canvas-poster",
   "type": "module",
   "version": "0.0.15",
-  "description": "使用canvas生成海报",
+  "description": "使用canvas生成海报 | Generate poster with canvas",
   "author": {
     "name": "amihhs",
     "email": "amihhs369@gmail.com",

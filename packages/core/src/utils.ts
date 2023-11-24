@@ -1,3 +1,4 @@
+import { PosterType } from './types'
 import type { CanvasContext, FontConfig, PosterImage } from './types'
 
 export const isFunction = (val: unknown): val is (...args: any[]) => any => typeof val === 'function'
@@ -172,6 +173,64 @@ export function gaussBlur(imgData: ImageData, radius: number = 200, sigma: numbe
     }
 
     resolve(imgData)
+  })
+}
+export async function generateGaussBlurImage(options: {
+  width: number
+  height: number
+  radius?: number
+  sigma?: number
+  src: string
+  proxy?: (src: string) => Promise<string>
+}): Promise<{ img: string; color: [number, number, number] }> {
+  let isProxy = false
+  return new Promise((resolve, reject) => {
+    const canvas = document.createElement('canvas')
+    const context = canvas.getContext('2d')!
+    canvas.width = options.width
+    canvas.height = options.height
+    const img = new Image()
+    img.setAttribute('crossOrigin', 'anonymous')
+    img.setAttribute('src', options.src)
+    img.onload = async () => {
+      objectFitImage(context, {
+        type: PosterType.image,
+        x: 0,
+        y: 0,
+        src: options.src,
+        width: options.width,
+        height: options.height,
+        objectFit: 'cover',
+      },
+      img,
+      img.width,
+      img.height)
+
+      const data = context.getImageData(0, 0, options.width, options.height)
+      const promises = [
+        gaussBlur(data, options.radius, options.sigma),
+        analysisColor(data),
+      ] as const
+      const [emptyData, color] = await Promise.all(promises)
+      context.putImageData(emptyData, 0, 0)
+
+      resolve({ img: canvas.toDataURL('image/jpg') || '', color })
+    }
+    img.onerror = async (error) => {
+      if (!options.proxy || !isFunction(options.proxy) || isProxy) {
+        console.error('error', error)
+        return reject(error)
+      }
+      isProxy = true
+      // eslint-disable-next-line no-console
+      console.info('proxy image:', options.src)
+      await options.proxy(options.src).then((res) => {
+        img.setAttribute('src', res)
+      }).catch((err) => {
+        console.error('proxy image error:', err)
+        reject(err)
+      })
+    }
   })
 }
 
