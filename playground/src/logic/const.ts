@@ -17,10 +17,10 @@ export const CONTENT_JSON_KEY = Symbol('CONTENT_JSON')
  */
 export const ADD_FROM_KEY = Symbol('ADD_FROM_KEY')
 
-/** ********************************************************* */
-/** ********************************************************* */
-/** ********************************************************* */
-/** ********************************************************* */
+/** */
+/** */
+/** */
+/** */
 
 /**
  * @description 基础设置默认值
@@ -40,10 +40,10 @@ export const defaultChangeContext = {
   item: null as CanvasControlLocationJson | null,
 }
 
-/** ********************************************************* */
-/** ********************************************************* */
-/** ********************************************************* */
-/** ********************************************************* */
+/** */
+/** */
+/** */
+/** */
 
 /**
  * @description 绘制内容json
@@ -57,7 +57,7 @@ export const DRAW_CONTEXT_MAP = ref<Map<string, CanvasControlLocationJson>>(new 
 /**
  * @description 当前鼠标悬浮的 MAP KEY
  */
-export const CURRENT_HOVER_KEY = ref<{ key: string;index: number } | null>(null)
+export const CURRENT_HOVER_KEY = ref<{ key: string, index: number } | null>(null)
 /**
  * @description 当前正在修改的json
  */

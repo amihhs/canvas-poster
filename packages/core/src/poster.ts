@@ -5,6 +5,7 @@ import { resolveConfig } from './config'
 import { createContext } from './context'
 import { drawImage, drawLine, drawRect, drawText } from './elements'
 
+export type PosterInstance = ReturnType<typeof createPoster>
 export function createPoster(options: PosterConfig = {}, canvasEl?: HTMLCanvasElement) {
   const config = resolveConfig(options)
   const context = createContext(config, canvasEl)

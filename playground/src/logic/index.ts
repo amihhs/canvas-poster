@@ -1,16 +1,18 @@
-import { Poster } from '@amihhs/canvas-poster'
+import type { PosterInstance } from '@amihhs/canvas-poster'
+import { createPoster } from '@amihhs/canvas-poster'
 import type { BaseSetting } from '@/interface'
 
 export function globalInitHandler() {
   const canvasRef = ref<HTMLCanvasElement | null>(null)
 
   const { baseSetting, baseSettingUpdateHandler } = baseSettingHandler()
-  const poster = shallowRef<Poster | null>(null)
+  const poster = shallowRef<PosterInstance | null>(null)
 
   function initHandler() {
     if (!canvasRef.value)
       return
-    poster.value = new Poster({}, canvasRef.value)
+
+    poster.value = createPoster({}, canvasRef.value)
     baseSettingUpdateHandler(poster.value, baseSetting.value)
     canvasBindEvent(canvasRef.value)
   }
@@ -18,7 +20,7 @@ export function globalInitHandler() {
   function updateRender() {
     if (!poster.value)
       return
-    poster.value.create(unref(POSTER_JSON))
+    poster.value.render(poster.value.context, unref(POSTER_JSON))
     updateDrawContext(unref(POSTER_JSON))
   }
 
@@ -39,13 +41,13 @@ export function globalInitHandler() {
 
 export function baseSettingHandler() {
   const baseSetting = useLocalStorage<BaseSetting>('baseSetting', baseSettingDefault)
-  function baseSettingUpdateHandler(posterCxt: Poster | null, baseSetting: BaseSetting): void {
+  function baseSettingUpdateHandler(posterCxt: PosterInstance | null, baseSetting: BaseSetting): void {
     if (!posterCxt)
       return
-    posterCxt.resize({
+    posterCxt.context.updateConfig({
       width: baseSetting.canvasWidth,
       height: baseSetting.canvasHeight,
-      scale: baseSetting.dpi,
+      dpi: baseSetting.dpi,
     })
   }
   return { baseSetting, baseSettingUpdateHandler }

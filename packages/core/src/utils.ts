@@ -182,7 +182,7 @@ export async function generateGaussBlurImage(options: {
   sigma?: number
   src: string
   proxy?: (src: string) => Promise<string>
-}): Promise<{ img: string; color: [number, number, number] }> {
+}): Promise<{ img: string, color: [number, number, number] }> {
   let isProxy = false
   return new Promise((resolve, reject) => {
     const canvas = document.createElement('canvas')
@@ -201,10 +201,7 @@ export async function generateGaussBlurImage(options: {
         width: options.width,
         height: options.height,
         objectFit: 'cover',
-      },
-      img,
-      img.width,
-      img.height)
+      }, img, img.width, img.height)
 
       const data = context.getImageData(0, 0, options.width, options.height)
       const promises = [

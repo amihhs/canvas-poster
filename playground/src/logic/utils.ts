@@ -4,10 +4,10 @@ import { toBase64 } from '@/shared'
 
 export function isCanvasBgRect(data: CanvasControlLocationJson, canvas: HTMLCanvasElement) {
   return data.x === 0
-  && data.y === 0
-  && data.width === canvas?.clientWidth
-  && data.height === canvas?.clientHeight
-  && data.type === PosterType.rect
+    && data.y === 0
+    && data.width === canvas?.clientWidth
+    && data.height === canvas?.clientHeight
+    && data.type === PosterType.rect
 }
 
 export function findCurrentHoveItemKey(

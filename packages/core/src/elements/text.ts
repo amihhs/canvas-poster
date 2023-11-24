@@ -151,12 +151,12 @@ function renderLetterSpacingText(texts: SliceText[], ctx: PosterContext, options
 }
 
 /**
-   * 生成截取文本内容
-   */
+ * 生成截取文本内容
+ */
 function generateEllipsisTextLines(
-  texts: { text: string; width: number }[],
+  texts: { text: string, width: number }[],
   width: number,
-  ellipsisConfig: { width: number; ellipsis: string },
+  ellipsisConfig: { width: number, ellipsis: string },
   lineCount: number,
 ) {
   const { width: ellipsisWidth, ellipsis } = ellipsisConfig

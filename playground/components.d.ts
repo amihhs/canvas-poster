@@ -7,22 +7,12 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
-    AddImage: typeof import('./src/components/add/image.vue')['default']
-    AddLine: typeof import('./src/components/add/line.vue')['default']
-    AddRect: typeof import('./src/components/add/rect.vue')['default']
-    AddText: typeof import('./src/components/add/text.vue')['default']
-    AddTextEllipsis: typeof import('./src/components/add/text-ellipsis.vue')['default']
     ElementBase: typeof import('./src/components/element/base.vue')['default']
     ElementImage: typeof import('./src/components/element/image.vue')['default']
     ElementLine: typeof import('./src/components/element/line.vue')['default']
     ElementRect: typeof import('./src/components/element/rect.vue')['default']
     ElementText: typeof import('./src/components/element/text.vue')['default']
     ElementTextEllipsis: typeof import('./src/components/element/text-ellipsis.vue')['default']
-    PartImage: typeof import('./src/components/part/image.vue')['default']
-    PartLine: typeof import('./src/components/part/line.vue')['default']
-    PartRect: typeof import('./src/components/part/rect.vue')['default']
-    PartText: typeof import('./src/components/part/text.vue')['default']
-    PartTextEllipsis: typeof import('./src/components/part/text-ellipsis.vue')['default']
     SettingAdd: typeof import('./src/components/setting/add.vue')['default']
     SettingBase: typeof import('./src/components/setting/base.vue')['default']
     SettingContents: typeof import('./src/components/setting/contents/index.vue')['default']

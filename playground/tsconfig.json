@@ -1,29 +1,29 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "baseUrl": ".",
-    "useDefineForClassFields": true,
-    "module": "ESNext",
     "lib": ["ESNext", "DOM"],
+    "useDefineForClassFields": true,
+    "baseUrl": ".",
+    "module": "ESNext",
     "moduleResolution": "Node",
-    "strict": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@amihhs/canvas-poster": ["../packages/core/src/index.ts"]
+    },
     "resolveJsonModule": true,
-    "isolatedModules": true,
-    "esModuleInterop": true,
-    "noEmit": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "skipLibCheck": true,
     "types": [
       "node",
       "vite/client"
     ],
-    "paths": {
-      "@/*": ["./src/*"],
-      "@amihhs/canvas-poster": ["../packages/core/src/index.ts"]
-    }
+    "strict": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "skipLibCheck": true
   },
-  "exclude": ["**/dist/**"],
-  "include": ["**/*.ts", "**/*.d.ts", "**/*.vue"]
+  "include": ["**/*.ts", "**/*.d.ts", "**/*.vue"],
+  "exclude": ["**/dist/**"]
 }

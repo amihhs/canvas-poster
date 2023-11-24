@@ -1,7 +1,0 @@
-{
-  "extends": ["@antfu"],
-  "rules": {
-    // your overrides
-    "vue/dot-location": "off"
-  }
-}
