@@ -12,21 +12,27 @@ export function createPoster(options: PosterConfig = {}, canvasEl?: HTMLCanvasEl
 
   const render = async (ctx: PosterContext, content: PosterJson[] = []) => {
     const { context, canvas } = ctx
-    context.clearRect(0, 0, canvas.width, canvas.height)
+
+    // fix: flashes as move the picture
+    const temp = createContext(config)
+
     for (const i of content) {
       const item = i
       if (item.type === PosterType.image)
-        await drawImage(ctx, item)
+        await drawImage(temp, item)
 
       else if (item.type === PosterType.text)
-        drawText(ctx, item)
+        drawText(temp, item)
 
       else if (item.type === PosterType.rect)
-        drawRect(ctx, item)
+        drawRect(temp, item)
 
       else if (item.type === PosterType.line)
-        drawLine(ctx, item)
+        drawLine(temp, item)
     }
+
+    context.clearRect(0, 0, canvas.width, canvas.height)
+    context.drawImage(temp.canvas, 0, 0)
 
     return canvas
   }

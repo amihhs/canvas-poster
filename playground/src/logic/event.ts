@@ -5,6 +5,7 @@ import type {
 } from '@amihhs/canvas-poster'
 import type { CanvasControlLocationJson, DrawJson } from '@/interface'
 
+export const EXCLUDE_SELECT_ID = ['baseSetting']
 export function useCurrentChangeJson() {
   function setCurrentChangeJson(data: DrawJson | null) {
     CURRENT_CHANGE_JSON.value = data
@@ -68,6 +69,16 @@ export function canvasBindEvent(canvas: HTMLCanvasElement) {
     if (!canvas)
       return console.error('canvas is null')
     _draw()
+
+    useEventListener('click', (e) => {
+      const target = e.target as HTMLElement
+      console.log('click', target, target.tagName)
+      if (target.tagName === 'CANVAS')
+        return
+
+      CURRENT_HOVER_KEY.value = null
+      CURRENT_CHANGE_JSON.value = null
+    })
   }
 
   function _draw() {
@@ -76,14 +87,24 @@ export function canvasBindEvent(canvas: HTMLCanvasElement) {
 
     // const { setCurrentChangeJson } = useCurrentChangeJson()
     const downHandler = (e: MouseEvent) => {
-      if (!CURRENT_HOVER_KEY.value)
+      if (!CURRENT_HOVER_KEY.value) {
+        CURRENT_HOVER_KEY.value = null
+        CURRENT_CHANGE_JSON.value = null
         return
+      }
+
       keyDown = true
       const { key, index } = CURRENT_HOVER_KEY.value
       // console.log('downHandler', e, POSTER_JSON)
 
       item = selectItem(key || '') || null
       CURRENT_CHANGE_JSON.value = POSTER_JSON.value[index]
+
+      const id = CURRENT_CHANGE_JSON.value.id
+      if (EXCLUDE_SELECT_ID.includes(id)) {
+        CURRENT_CHANGE_JSON.value = null
+        return
+      }
 
       changeStartContextHandler({
         x: e.offsetX,
@@ -102,7 +123,6 @@ export function canvasBindEvent(canvas: HTMLCanvasElement) {
 
       if (!keyDown || !item || !CURRENT_HOVER_KEY.value)
         return
-
       const { index } = CURRENT_HOVER_KEY.value
 
       const offsetX = e.offsetX - x

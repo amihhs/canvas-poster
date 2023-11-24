@@ -7,12 +7,19 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    2: typeof import('./src/components/element/textShow copy 2.vue')['default']
+    3: typeof import('./src/components/element/textShow copy 3.vue')['default']
+    copy: typeof import('./src/components/element/textShow copy.vue')['default']
     ElementBase: typeof import('./src/components/element/base.vue')['default']
     ElementImage: typeof import('./src/components/element/image.vue')['default']
+    ElementImageShow: typeof import('./src/components/element/imageShow.vue')['default']
     ElementLine: typeof import('./src/components/element/line.vue')['default']
+    ElementLineShow: typeof import('./src/components/element/lineShow.vue')['default']
     ElementRect: typeof import('./src/components/element/rect.vue')['default']
+    ElementRectShow: typeof import('./src/components/element/rectShow.vue')['default']
     ElementText: typeof import('./src/components/element/text.vue')['default']
     ElementTextEllipsis: typeof import('./src/components/element/text-ellipsis.vue')['default']
+    ElementTextShow: typeof import('./src/components/element/textShow.vue')['default']
     SettingAdd: typeof import('./src/components/setting/add.vue')['default']
     SettingBase: typeof import('./src/components/setting/base.vue')['default']
     SettingContents: typeof import('./src/components/setting/contents/index.vue')['default']

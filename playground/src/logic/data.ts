@@ -2,6 +2,7 @@ import type {
   FontConfig,
   PosterBaseJson,
   PosterBaseText,
+  PosterImage,
   PosterJson,
   PosterLine,
   PosterRect,
@@ -48,6 +49,11 @@ const lineDefaultForm: PosterLine = {
   lineWidth: 1,
   lineDash: [0, 0],
 }
+const imageDefaultForm: PosterImage = {
+  type: PosterType.image,
+  ...baseDefault,
+  src: `${window.location.origin}/vite.svg`,
+}
 const rectDefaultForm: PosterRect = {
   type: PosterType.rect,
   ...baseDefault,
@@ -65,6 +71,5 @@ export const JSON_BASE_FORM = {
   line: lineDefaultForm,
   rect: rectDefaultForm,
   text: textDefaultForm,
-  textEllipsis: lineDefaultForm,
-  image: lineDefaultForm,
+  image: imageDefaultForm,
 } as Record<PosterType, PosterJson>

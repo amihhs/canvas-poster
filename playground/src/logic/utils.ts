@@ -17,6 +17,9 @@ export function findCurrentHoveItemKey(
 ) {
   const items = []
   for (const [_, data] of unref(DRAW_CONTEXT_MAP)) {
+    if (EXCLUDE_SELECT_ID.includes(data.id))
+      continue
+
     if (x > data.x && x < data.x + data.width && y > data.y && y < data.y + data.height)
       items.push({ key: _, index: data.sort })
   }

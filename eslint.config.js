@@ -11,6 +11,7 @@ export default await antfu({
   overrides: {
     vue: {
       'vue/dot-location': 'off',
+      'vue/no-extra-parens': 'off',
     },
   },
 })

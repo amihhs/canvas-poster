@@ -6,9 +6,8 @@ const itemType = computed(() => {
 })
 
 const components = {
-  [PosterType.image]: defineAsyncComponent(() => import('@/components/element/image.vue')),
   [PosterType.text]: defineAsyncComponent(() => import('@/components/element/text.vue')),
-  [PosterType.textEllipsis]: defineAsyncComponent(() => import('@/components/element/text-ellipsis.vue')),
+  [PosterType.image]: defineAsyncComponent(() => import('@/components/element/image.vue')),
   [PosterType.rect]: defineAsyncComponent(() => import('@/components/element/rect.vue')),
   [PosterType.line]: defineAsyncComponent(() => import('@/components/element/line.vue')),
 }

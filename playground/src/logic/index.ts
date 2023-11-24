@@ -1,5 +1,5 @@
 import type { PosterInstance } from '@amihhs/canvas-poster'
-import { createPoster } from '@amihhs/canvas-poster'
+import { PosterType, createPoster } from '@amihhs/canvas-poster'
 import type { BaseSetting } from '@/interface'
 
 export function globalInitHandler() {
@@ -44,7 +44,39 @@ export function baseSettingHandler() {
   function baseSettingUpdateHandler(posterCxt: PosterInstance | null, baseSetting: BaseSetting): void {
     if (!posterCxt)
       return
-    posterCxt.context.updateConfig({
+
+    const { context } = posterCxt
+
+    if (baseSetting.bgColor) {
+      const json = POSTER_JSON.value[0]
+      if (
+        json
+        && json.type === PosterType.rect
+        && json.id === 'baseSetting'
+        && json.bgColor !== baseSetting.bgColor
+      ) {
+        json.bgColor = baseSetting.bgColor
+        json.width = context.calcDPI(baseSetting.canvasWidth)
+        json.height = context.calcDPI(baseSetting.canvasHeight)
+      }
+      else if (
+        !json
+        || json.type !== PosterType.rect
+        || json.id !== 'baseSetting'
+      ) {
+        POSTER_JSON.value.unshift({
+          id: 'baseSetting',
+          x: 0,
+          y: 0,
+          type: PosterType.rect,
+          bgColor: baseSetting.bgColor,
+          width: baseSetting.canvasWidth,
+          height: baseSetting.canvasHeight,
+        })
+      }
+    }
+
+    context.updateConfig({
       width: baseSetting.canvasWidth,
       height: baseSetting.canvasHeight,
       dpi: baseSetting.dpi,

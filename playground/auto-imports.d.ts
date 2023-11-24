@@ -16,6 +16,7 @@ declare global {
   const CURRENT_CHANGE_VISIBLE_KEY: typeof import('./src/logic/const')['CURRENT_CHANGE_VISIBLE_KEY']
   const CURRENT_HOVER_KEY: typeof import('./src/logic/const')['CURRENT_HOVER_KEY']
   const DRAW_CONTEXT_MAP: typeof import('./src/logic/const')['DRAW_CONTEXT_MAP']
+  const EXCLUDE_SELECT_ID: typeof import('./src/logic/event')['EXCLUDE_SELECT_ID']
   const EffectScope: typeof import('vue')['EffectScope']
   const JSON_BASE_FORM: typeof import('./src/logic/data')['JSON_BASE_FORM']
   const POSTER_JSON: typeof import('./src/logic/const')['POSTER_JSON']
