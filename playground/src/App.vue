@@ -35,7 +35,7 @@ const style = computed(() => ({
   height: `${baseSetting.value.canvasHeight}px`,
 }))
 
-const rightState = ref<RightState>('add')
+const rightState = ref<RightState>('base')
 function changeRightState(state: RightState) {
   rightState.value = state
 }

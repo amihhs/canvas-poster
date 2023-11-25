@@ -52,7 +52,7 @@ const lineDefaultForm: PosterLine = {
 const imageDefaultForm: PosterImage = {
   type: PosterType.image,
   ...baseDefault,
-  src: `${window.location.origin}/vite.svg`,
+  src: `${window.location.origin}/logo.svg`,
 }
 const rectDefaultForm: PosterRect = {
   type: PosterType.rect,

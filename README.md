@@ -1,16 +1,16 @@
 # Canvas Poster
 
+[![npm](https://img.shields.io/npm/v/@amihhs/canvas-poster.svg)](https://npmjs.com/package/@amihhs/canvas-poster)
+
+> This is a work in progress.  
+> npm version: 0.* - `v0` branch  
+> The `main` branch has not yet released related versions on npm.  
+
 ## Description  
 
 This is a simple canvas poster that allows you to draw on a canvas and save the image as a poster.
 
 The goal is to dynamically generate a specific json data format and then generate the corresponding poster when the data format of the poster content is known but the specific data is uncertain.
-
-> This is a work in progress.  
-> npm version: 0.* - `v0` branch
-> The `main` branch has not yet released related versions on npm.  
-
-[![npm](https://img.shields.io/npm/v/@amihhs/canvas-poster.svg)](https://npmjs.com/package/@amihhs/canvas-poster)
 
 ## Installation
 
