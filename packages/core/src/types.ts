@@ -67,7 +67,6 @@ export enum PosterType {
   line = 'line',
   image = 'image',
   text = 'text',
-  textEllipsis = 'textEllipsis', // 截取文本绘制
   rect = 'rect',
 }
 

@@ -1,10 +1,10 @@
 {
   "name": "canvas-poster",
   "type": "module",
-  "version": "0.0.15",
+  "version": "1.0.0",
   "private": true,
   "packageManager": "pnpm@7.5.1",
-  "description": "使用canvas生成海报",
+  "description": "通过解析特定的json数据，来在canvas上绘制海报 | Draw posters on canvas by parsing specific json data",
   "author": {
     "name": "amihhs",
     "email": "amihhs369@gmail.com",
