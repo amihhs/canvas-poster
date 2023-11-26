@@ -10,11 +10,15 @@
   },
   "dependencies": {
     "@amihhs/canvas-poster": "workspace:*",
+    "@codemirror/lang-json": "^6.0.1",
     "@headlessui/vue": "^1.7.16",
     "@vueuse/core": "^10.4.1",
+    "@vueuse/rxjs": "^10.6.1",
+    "codemirror": "^6.0.1",
     "dexie": "^3.2.4",
     "uuid": "^9.0.1",
-    "vue": "^3.3.4"
+    "vue": "^3.3.4",
+    "vue-router": "4"
   },
   "devDependencies": {
     "@iconify/json": "^2.2.115",
@@ -26,6 +30,7 @@
     "unplugin-auto-import": "^0.16.6",
     "unplugin-vue-components": "^0.25.2",
     "vite": "^4.4.9",
+    "vite-plugin-pages": "^0.31.0",
     "vue-tsc": "^1.8.11"
   }
 }
