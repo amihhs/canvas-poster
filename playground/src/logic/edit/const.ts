@@ -1,3 +1,4 @@
+import { DEFAULT_FONT } from '@amihhs/canvas-poster'
 import type { BaseSetting, CanvasControlLocationJson, DrawJson } from '@/interface'
 
 /**
@@ -26,10 +27,11 @@ export const ADD_FROM_KEY = Symbol('ADD_FROM_KEY')
  * @description 基础设置默认值
  */
 export const baseSettingDefault: BaseSetting = {
-  bgColor: '#ffffff',
-  canvasWidth: 354,
-  canvasHeight: 700,
+  width: 375,
+  height: 'auto',
   dpi: 3,
+  defaultFont: Object.assign({}, DEFAULT_FONT),
+  defaultColor: '#000000',
 }
 /**
  * @description 正在修改的json的初始状态默认值
@@ -41,14 +43,6 @@ export const defaultChangeContext = {
 }
 
 /** */
-/** */
-/** */
-/** */
-
-/**
- * @description 绘制内容json
- */
-export const POSTER_JSON = useLocalStorage<DrawJson[]>('json', [])
 
 /**
  * @description 绘制内容MAP

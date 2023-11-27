@@ -1,0 +1,23 @@
+not-found: Not found
+first-create: Please create a poster first
+
+button:
+  create: Create
+  update: Update
+  cancel: Cancel
+
+home:
+  title: Historical Posters
+
+setting:
+  base: Base Setting
+  dpi: DPI
+  width: Width
+  height: Height
+  defaultColor: Default Color
+  defaultFont: Default Font
+  fontSize: Size
+  fontFamily: Family
+  fontWeight: Weight
+  fontStyle: Style
+  lineHeight: LineHeight

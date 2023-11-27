@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { CURRENT_CHANGE_JSON } from '@/logic/const'
+import { CURRENT_CHANGE_JSON } from '@/logic/edit/const'
 </script>
 
 <template>

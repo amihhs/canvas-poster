@@ -1,14 +1,13 @@
 import { createApp } from 'vue'
 import 'uno.css'
 import './assets/styles/reset.scss'
-import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
+import type { UserModule } from './types'
 
-import routes from '~pages'
+const app = createApp(App)
 
-const router = createRouter({
-  history: createWebHistory(),
-  routes,
-})
+Object.values(
+  import.meta.glob<{ install: UserModule }>('./modules/*.ts', { eager: true }),
+).forEach(i => i.install?.({ app }))
 
-createApp(App).use(router).mount('#app')
+app.mount('#app')

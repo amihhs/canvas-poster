@@ -1,0 +1,23 @@
+not-found: 未找到页面
+first-create: 请先创建海报
+
+button:
+  create: 创建
+  update: 更新
+  cancel: 关闭
+
+home:
+  title: 历史记录
+
+setting:
+  base: 基础设置
+  dpi: 像素比
+  width: 宽
+  height: 高
+  defaultColor: 默认字体颜色
+  defaultFont: 默认字体样式
+  fontSize: 字体大小
+  fontFamily: 字体
+  fontWeight: 字体粗细
+  fontStyle: 字体风格
+  lineHeight: 字体行高

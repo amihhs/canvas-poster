@@ -7,10 +7,9 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
-    2: typeof import('./src/components/element/textShow copy 2.vue')['default']
-    3: typeof import('./src/components/element/textShow copy 3.vue')['default']
-    copy: typeof import('./src/components/element/textShow copy.vue')['default']
+    CodeMirror: typeof import('./src/components/codeMirror.vue')['default']
     Create: typeof import('./src/components/create.vue')['default']
+    EditRight: typeof import('./src/components/edit-right.vue')['default']
     ElementBase: typeof import('./src/components/element/base.vue')['default']
     ElementImage: typeof import('./src/components/element/image.vue')['default']
     ElementImageShow: typeof import('./src/components/element/imageShow.vue')['default']
@@ -19,7 +18,6 @@ declare module 'vue' {
     ElementRect: typeof import('./src/components/element/rect.vue')['default']
     ElementRectShow: typeof import('./src/components/element/rectShow.vue')['default']
     ElementText: typeof import('./src/components/element/text.vue')['default']
-    ElementTextEllipsis: typeof import('./src/components/element/text-ellipsis.vue')['default']
     ElementTextShow: typeof import('./src/components/element/textShow.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
@@ -29,5 +27,6 @@ declare module 'vue' {
     SettingEdit: typeof import('./src/components/setting/edit.vue')['default']
     UtilsColor: typeof import('./src/components/utils/color.vue')['default']
     UtilsColorRange: typeof import('./src/components/utils/color-range.vue')['default']
+    UtilsI18n: typeof import('./src/components/utils/i18n.vue')['default']
   }
 }

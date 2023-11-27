@@ -1,5 +1,6 @@
 <script setup lang='ts'>
 import { PosterType } from '@amihhs/canvas-poster'
+import type { DrawJson } from '@/interface'
 
 const typeSelects = [
   { type: 'Line', value: PosterType.line },
@@ -8,8 +9,10 @@ const typeSelects = [
   { type: 'Image', value: PosterType.image },
 ] as const
 
-const { addJson } = useControlJson()
-const { setCurrentChangeJson } = useCurrentChangeJson()
+const posterJson = inject<Ref<DrawJson[]>>(CONTENT_JSON_KEY, ref([]))
+const { addJson } = useControlJson(posterJson)
+const { setCurrentChangeJson } = useCurrentChangeJson(posterJson)
+
 function addHandler(type: PosterType = PosterType.text) {
   const item = addJson(JSON_BASE_FORM[type])
   setCurrentChangeJson(item)
@@ -17,6 +20,9 @@ function addHandler(type: PosterType = PosterType.text) {
 </script>
 
 <template>
+  <h1 class="font-bold text-4">
+    添加内容
+  </h1>
   <div class="grid grid-cols-2 gap-lg py-sm">
     <div
       v-for="v in typeSelects" :key="v.value"

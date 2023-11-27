@@ -1,7 +1,6 @@
+import type { PosterConfig } from '@amihhs/canvas-poster'
+
+export type JsonString = string
+
 export type RightState = 'base' | 'list' | 'add' | 'edit'
-export interface BaseSetting {
-  bgColor: string
-  canvasWidth: number
-  canvasHeight: number
-  dpi: number
-}
+export type BaseSetting = Required<Omit<PosterConfig, 'cors' | 'proxy'>>

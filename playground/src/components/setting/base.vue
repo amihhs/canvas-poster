@@ -1,26 +1,55 @@
 <script setup lang='ts'>
 import type { BaseSetting } from '@/interface'
 
+const { t } = useI18n()
+
 const baseSetting = inject<Ref<BaseSetting>>(BASE_SETTING_KEY, ref(baseSettingDefault))
 </script>
 
 <template>
-  <div>
-    <div class="flex items-center justify-between border-(b-1 slate-1) p-3">
-      <span class="text-3.5">背景颜色</span>
-      <input v-model="baseSetting.bgColor" type="color" class="w-20 h-8">
+  <h1 class="font-bold text-4">
+    {{ t('setting.base') }}
+  </h1>
+  <template v-if="baseSetting">
+    <div v-for="key in (['width', 'height', 'dpi'] as const)" :key="key" class="item">
+      <span class="text-3.5">{{ t(`setting.${key}`) }}</span>
+      <input v-model.number="baseSetting[key]" type="text" class="input">
     </div>
-    <div class="flex items-center justify-between border-(b-1 slate-1) p-3">
-      <span class="text-3.5">画布像素比</span>
-      <input v-model.number="baseSetting.dpi" type="text" class="px-3 border-(2 slate-3) rounded-md h-8">
+    <div class="item">
+      <span class="text-3.5">{{ t('setting.defaultColor') }}</span>
+      <input v-model="baseSetting.defaultColor" type="color" class="w-20 h-8">
     </div>
-    <div class="flex items-center justify-between border-(b-1 slate-1) p-3">
-      <span class="text-3.5">画布宽</span>
-      <input v-model.number="baseSetting.canvasWidth" type="text" class="px-3 border-(2 slate-3) rounded-md h-8">
+    <div class="border-(b-1 slate-1) p-3">
+      <span class="text-3.5 font-bold">
+        {{ t('setting.defaultFont') }}
+      </span>
+      <div v-for="key in (['fontSize', 'lineHeight', 'fontWeight'] as const)" :key="key" class="item">
+        <span class="text-3.5">{{ t(`setting.${key}`) }}</span>
+        <input v-model="baseSetting.defaultFont[key]" type="text" class="input">
+      </div>
+      <div class="item">
+        <span class="text-3.5 flex-shrink-0">{{ t('setting.fontStyle') }}</span>
+        <div class="flex-wrap flex w-53">
+          <button
+            v-for="v in (['normal', 'italic', 'oblique'] as const)" :key="v"
+            class="px-2 py-1 mr-1 mb-1 rounded-md text-3 border-(1 slate-2) "
+            :class="[baseSetting.defaultFont.fontStyle === v ? 'bg-teal-6 text-white' : '']"
+            @click="baseSetting.defaultFont.fontStyle = v"
+          >
+            {{ v }}
+          </button>
+        </div>
+      </div>
+      <div class="item">
+        <span class="text-3.5">{{ t('setting.fontFamily') }}</span>
+        <input v-model="baseSetting.defaultFont.fontFamily" type="text" class="input">
+      </div>
     </div>
-    <div class="flex items-center justify-between border-(b-1 slate-1) p-3">
-      <span class="text-3.5">画布高</span>
-      <input v-model.number="baseSetting.canvasHeight" type="text" class="px-3 border-(2 slate-3) rounded-md h-8">
-    </div>
-  </div>
+  </template>
 </template>
+
+<style lang="scss" scoped>
+.item{
+  --uno: flex items-center justify-between border-(b-1 slate-1) p-3;
+}
+</style>

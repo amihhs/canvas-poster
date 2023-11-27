@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { PosterType } from '@amihhs/canvas-poster'
-import { CURRENT_CHANGE_JSON } from '@/logic/const'
+import { CURRENT_CHANGE_JSON } from '@/logic/edit/const'
 import type { Color } from '@/interface'
 
 const color = ref<Color>({

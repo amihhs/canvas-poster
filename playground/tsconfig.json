@@ -13,7 +13,8 @@
     "resolveJsonModule": true,
     "types": [
       "node",
-      "vite/client"
+      "vite/client",
+      "@intlify/unplugin-vue-i18n/messages"
     ],
     "strict": true,
     "noImplicitReturns": true,

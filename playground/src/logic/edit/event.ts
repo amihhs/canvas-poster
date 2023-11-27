@@ -1,12 +1,10 @@
 /* eslint-disable no-console */
 import { v4 as uuidv4 } from 'uuid'
-import type {
-  PosterJson,
-} from '@amihhs/canvas-poster'
+import type { PosterJson } from '@amihhs/canvas-poster'
 import type { CanvasControlLocationJson, DrawJson } from '@/interface'
 
 export const EXCLUDE_SELECT_ID = ['baseSetting']
-export function useCurrentChangeJson() {
+export function useCurrentChangeJson(posterJson: Ref<DrawJson[]> = ref([])) {
   function setCurrentChangeJson(data: DrawJson | null) {
     CURRENT_CHANGE_JSON.value = data
   }
@@ -14,7 +12,7 @@ export function useCurrentChangeJson() {
     CHANGE_JSON_DRAWER_VISIBLE.value = visible
   }
   function showChangeJson(index: number, visible = true) {
-    const data = POSTER_JSON.value[index]
+    const data = posterJson.value[index]
 
     setCurrentChangeJson(data)
     setJsonChangeDrawerVisible(visible)
@@ -27,31 +25,31 @@ export function useCurrentChangeJson() {
   }
 }
 
-export function useControlJson() {
+export function useControlJson(posterJson: Ref<DrawJson[]> = ref([])) {
   function deleteJson(index: number, _confirm = false) {
     // if (_confirm && !window.confirm('确定删除吗？')) // eslint-disable-line no-alert
     //   return
-    POSTER_JSON.value.splice(index, 1)
+    posterJson.value.splice(index, 1)
   }
 
   function changeJson<KEY extends keyof DrawJson>(index: number, key: KEY, data: DrawJson[KEY]): DrawJson {
-    POSTER_JSON.value[index][key] = data
+    posterJson.value[index][key] = data
 
-    return POSTER_JSON.value[index]
+    return posterJson.value[index]
   }
 
   function updateJson(index: number, data: DrawJson): DrawJson {
-    POSTER_JSON.value.splice(index, 1, data)
+    posterJson.value.splice(index, 1, data)
     return data
   }
 
   function addJson(data: PosterJson, index?: number): DrawJson {
     const id = uuidv4()
     const item = { ...data, id }
-    if (index === undefined || POSTER_JSON.value.length === 0)
-      POSTER_JSON.value.push(item)
+    if (index === undefined || posterJson.value.length === 0)
+      posterJson.value.push(item)
     else
-      POSTER_JSON.value.splice(index ?? POSTER_JSON.value.length, 0, item)
+      posterJson.value.splice(index ?? posterJson.value.length, 0, item)
 
     return item
   }
@@ -64,23 +62,26 @@ export function useControlJson() {
   }
 }
 
-export function canvasBindEvent(canvas: HTMLCanvasElement) {
+export function canvasBindEvent(
+  canvas: HTMLCanvasElement,
+  posterJson: Ref<DrawJson[]> = ref([]),
+) {
+  const { changeJson } = useControlJson(posterJson)
+
   function initHandler(canvas: HTMLCanvasElement) {
     if (!canvas)
       return console.error('canvas is null')
     _draw()
 
-    useEventListener('click', (e) => {
+    useEventListener('mousedown', (e) => {
       const target = e.target as HTMLElement
-      console.log('click', target, target.tagName)
-      if (target.tagName === 'CANVAS')
-        return
-
-      CURRENT_HOVER_KEY.value = null
-      CURRENT_CHANGE_JSON.value = null
+      // console.log('click', target, target.tagName)
+      if (target.tagName === 'DIV' && target.id === 'container') {
+        CURRENT_HOVER_KEY.value = null
+        CURRENT_CHANGE_JSON.value = null
+      }
     })
   }
-
   function _draw() {
     let keyDown = false
     let item: CanvasControlLocationJson | null = null
@@ -95,10 +96,11 @@ export function canvasBindEvent(canvas: HTMLCanvasElement) {
 
       keyDown = true
       const { key, index } = CURRENT_HOVER_KEY.value
-      // console.log('downHandler', e, POSTER_JSON)
 
       item = selectItem(key || '') || null
-      CURRENT_CHANGE_JSON.value = POSTER_JSON.value[index]
+      CURRENT_CHANGE_JSON.value = posterJson.value[index]
+
+      console.log('down', posterJson, CURRENT_CHANGE_JSON.value)
 
       const id = CURRENT_CHANGE_JSON.value.id
       if (EXCLUDE_SELECT_ID.includes(id)) {
@@ -128,7 +130,6 @@ export function canvasBindEvent(canvas: HTMLCanvasElement) {
       const offsetX = e.offsetX - x
       const offsetY = e.offsetY - y
 
-      const { changeJson } = useControlJson()
       changeJson(index, 'x', item.x + offsetX)
       changeJson(index, 'y', item.y + offsetY)
 
