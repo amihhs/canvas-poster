@@ -54,7 +54,7 @@ async function createPoster() {
       poster: 0,
     })
     modal.value = false
-    router.push(`/edit/${id}`)
+    router.push(`/edit?id=${id}`)
   }
   catch (e: any) {
     console.error(e)
