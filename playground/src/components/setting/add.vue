@@ -36,5 +36,5 @@ function addHandler(type: PosterType = PosterType.text) {
 </template>
 
 <style lang='scss' scoped>
-@import url('@/assets/styles/add.scss');
+
 </style>

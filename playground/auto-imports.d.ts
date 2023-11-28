@@ -126,6 +126,7 @@ declare global {
   const shallowReadonly: typeof import('vue')['shallowReadonly']
   const shallowRef: typeof import('vue')['shallowRef']
   const sourceUrl: typeof import('./src/logic/db/source')['sourceUrl']
+  const syncChangeColor: typeof import('./src/logic/edit/event')['syncChangeColor']
   const syncRef: typeof import('@vueuse/core')['syncRef']
   const syncRefs: typeof import('@vueuse/core')['syncRefs']
   const templateRef: typeof import('@vueuse/core')['templateRef']

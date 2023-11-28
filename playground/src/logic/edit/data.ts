@@ -25,7 +25,7 @@ const baseFont: FontConfig = {
   lineHeight: 1,
 }
 const baseShadow: ShadowConfig = {
-  shadowColor: '#000',
+  shadowColor: '#000000',
   shadowBlur: undefined,
   shadowOffsetX: undefined,
   shadowOffsetY: undefined,

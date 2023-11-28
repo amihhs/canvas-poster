@@ -20,4 +20,16 @@ setting:
   fontFamily: Family
   fontWeight: Weight
   fontStyle: Style
-  lineHeight: LineHeight
+  lineHeight: Line Height
+  startPoint: Start Point
+  endPoint: End Point
+  angle: Angle
+  imagePath: Image URL
+  repeat: Repeat Type
+
+color:
+  pure: Pure
+  lineGradient: LineGradient
+  conicGradient: ConicGradient
+  radialGradient: RadialGradient
+  pattern: Pattern

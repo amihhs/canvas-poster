@@ -29,7 +29,7 @@ export const ADD_FROM_KEY = Symbol('ADD_FROM_KEY')
 export const baseSettingDefault: BaseSetting = {
   width: 375,
   height: 'auto',
-  dpi: 3,
+  dpi: window.devicePixelRatio || 2,
   defaultFont: Object.assign({}, DEFAULT_FONT),
   defaultColor: '#000000',
 }

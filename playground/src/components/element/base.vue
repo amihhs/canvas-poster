@@ -24,5 +24,5 @@ import { CURRENT_CHANGE_JSON } from '@/logic/edit/const'
 </template>
 
 <style lang='scss' scoped>
-@import url('@/assets/styles/add.scss');
+
 </style>

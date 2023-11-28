@@ -43,7 +43,7 @@ export function posterDetailHandler() {
     posterJson.value = poster.json.map((item) => {
       return { ...item, id: item?.id || uuidv4() }
     })
-    baseSetting.value = Object.assign({}, poster.base, baseSettingDefault)
+    baseSetting.value = Object.assign({}, baseSettingDefault, poster.base)
     state.value = 'success'
   }
 
@@ -63,24 +63,32 @@ export function posterDetailHandler() {
       base: unref(baseSetting) || baseSettingDefault,
     })
   }
-  const stops = [
-    watch(posterId, getPosterHandler, { immediate: true }),
-    watch(canvasRef, () => {
-      if (!canvasRef.value)
-        return
 
-      canvasBindEvent(canvasRef.value, posterJson)
-      createPosterInitHandler()
-      baseSettingUpdateHandler(posterInstance.value, baseSetting.value)
-    }, { immediate: true }),
-    watch(() => [posterJson.value, posterInstance.value], updateRender, { deep: true, immediate: true }),
-    watch(baseSetting, () => {
-      if (!posterInstance.value)
-        return
-      baseSettingUpdateHandler(posterInstance.value, baseSetting.value)
-      updateRender()
-    }, { deep: true, immediate: true }),
-  ]
+  let stops: (() => void)[] | null = null
+  function addWatchHandler() {
+    stops = [
+      watch(posterId, getPosterHandler),
+      watch(canvasRef, () => {
+        if (!canvasRef.value)
+          return
+
+        canvasBindEvent(canvasRef.value, posterJson)
+        createPosterInitHandler(baseSetting.value)
+      }, { immediate: true }),
+      watch(posterJson, updateRender, { deep: true, immediate: true }),
+      watch(baseSetting, () => {
+        if (!posterInstance.value)
+          return
+        baseSettingUpdateHandler(posterInstance.value, baseSetting.value)
+        updateRender()
+      }, { deep: true }),
+    ]
+  }
+
+  async function initHandler() {
+    await getPosterHandler(posterId.value)
+    addWatchHandler()
+  }
   onBeforeUnmount(() => {
     stops?.forEach(stop => stop?.())
   })
@@ -91,6 +99,7 @@ export function posterDetailHandler() {
     posterJson,
     baseSetting,
     updateRender,
+    initHandler,
   }
 }
 
@@ -103,13 +112,13 @@ export function baseSettingUpdateHandler(posterCxt: PosterInstance | null, baseS
 
 export function createPosterHandler() {
   const canvasRef = ref<HTMLCanvasElement | null>(null)
-  const posterInstance = shallowRef<PosterInstance | null>(null)
+  const posterInstance = ref<PosterInstance | null>(null)
 
-  function createPosterInitHandler() {
+  function createPosterInitHandler(baseSetting: BaseSetting | null) {
     if (!canvasRef.value)
       return
 
-    posterInstance.value = createPoster({}, canvasRef.value)
+    posterInstance.value = createPoster(baseSetting || {}, canvasRef.value)
   }
 
   return {

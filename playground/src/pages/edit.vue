@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { CURRENT_CHANGE_JSON } from '@/logic/edit/const'
-
 const { t } = useI18n()
 const {
   posterId,
@@ -8,7 +6,10 @@ const {
   canvasRef,
   posterJson,
   baseSetting,
+  initHandler,
 } = posterDetailHandler()
+
+initHandler()
 
 provide(CANVAS_EL_KEY, canvasRef)
 provide(BASE_SETTING_KEY, baseSetting)
@@ -21,19 +22,6 @@ const style = computed(() => {
   return {
     width: `${baseSetting.value.width}px`,
     height: `${baseSetting.value.height}px`,
-  }
-})
-
-const selectStyle = computed(() => {
-  if (!CURRENT_CHANGE_JSON.value || !canvasRef.value)
-    return {}
-
-  const { offsetLeft, offsetTop } = canvasRef.value
-  return {
-    left: `${CURRENT_CHANGE_JSON.value.x + offsetLeft}px`,
-    top: `${CURRENT_CHANGE_JSON.value.y + offsetTop}px`,
-    width: `${CURRENT_CHANGE_JSON.value.width}px`,
-    height: `${CURRENT_CHANGE_JSON.value.height}px`,
   }
 })
 
@@ -56,16 +44,7 @@ onBeforeRouteLeave(() => {
     <div v-if="state === 'success'" class=" bg-gray-2 p-3 font-mono">
       <div id="container" class="pt-5 grid place-content-center relative">
         <canvas ref="canvasRef" class="origin-top-center" :style="style" />
-        <div
-          v-if="CURRENT_CHANGE_JSON"
-          class="absolute bg-teal-6 bg-opacity-40 select-none pointer-events-none border-(1 teal-6)"
-          :style="selectStyle"
-        >
-          <span class="w-2 h-2 inline-block bg-teal-6 top-0 left-0 absolute pointer-events-auto" @click="console.log('1')" />
-          <span class="w-2 h-2 inline-block bg-teal-6 top-0 right-0 absolute" />
-          <span class="w-2 h-2 inline-block bg-teal-6 bottom-0 left-0 absolute" />
-          <span class="w-2 h-2 inline-block bg-teal-6 bottom-0 right-0 absolute" />
-        </div>
+        <EditSelected />
       </div>
       <EditRight />
     </div>

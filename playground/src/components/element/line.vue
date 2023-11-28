@@ -24,5 +24,4 @@
 </template>
 
 <style lang='scss' scoped>
-@import url('@/assets/styles/add.scss');
 </style>

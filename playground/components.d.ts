@@ -10,6 +10,7 @@ declare module 'vue' {
     CodeMirror: typeof import('./src/components/codeMirror.vue')['default']
     Create: typeof import('./src/components/create.vue')['default']
     EditRight: typeof import('./src/components/edit-right.vue')['default']
+    EditSelected: typeof import('./src/components/edit-selected.vue')['default']
     ElementBase: typeof import('./src/components/element/base.vue')['default']
     ElementImage: typeof import('./src/components/element/image.vue')['default']
     ElementImageShow: typeof import('./src/components/element/imageShow.vue')['default']
@@ -25,7 +26,9 @@ declare module 'vue' {
     SettingBase: typeof import('./src/components/setting/base.vue')['default']
     SettingContents: typeof import('./src/components/setting/contents/index.vue')['default']
     SettingEdit: typeof import('./src/components/setting/edit.vue')['default']
+    Switch: typeof import('./src/components/switch.vue')['default']
     UtilsColor: typeof import('./src/components/utils/color.vue')['default']
+    UtilsColorLineGradient: typeof import('./src/components/utils/color-line-gradient.vue')['default']
     UtilsColorRange: typeof import('./src/components/utils/color-range.vue')['default']
     UtilsI18n: typeof import('./src/components/utils/i18n.vue')['default']
   }

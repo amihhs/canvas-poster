@@ -21,3 +21,15 @@ setting:
   fontWeight: 字体粗细
   fontStyle: 字体风格
   lineHeight: 字体行高
+  startPoint: 起始点
+  endPoint: 终止点
+  angle: 角度
+  imagePath: 图片地址
+  repeat: 重复方式
+
+color:
+  pure: 纯色
+  lineGradient: 线性渐变
+  conicGradient: 锥形渐变
+  radialGradient: 径向渐变
+  pattern: 图案
