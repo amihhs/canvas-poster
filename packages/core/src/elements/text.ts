@@ -1,19 +1,19 @@
 import type { PosterContext, PosterText, SliceText } from '../types'
 import { transformFont } from '../utils'
-import { setShadow, setTextAlign, setTextBaseline } from './shared'
+import { parseColor, setShadow, setTextAlign, setTextBaseline } from './shared'
 
 /**
  * draw text
  * support: text, textEllipsis
  */
-export function drawText(ctx: PosterContext, options: PosterText) {
+export async function drawText(ctx: PosterContext, options: PosterText) {
   if (!options.ellipsis)
-    return renderText(ctx, options)
+    return await renderText(ctx, options)
 
-  renderEllipsisText(ctx, options)
+  await renderEllipsisText(ctx, options)
 }
 
-function renderBaseText(ctx: PosterContext, options: PosterText) {
+async function renderBaseText(ctx: PosterContext, options: PosterText) {
   const { context, config } = ctx
   const { defaultColor } = config
 
@@ -29,32 +29,31 @@ function renderBaseText(ctx: PosterContext, options: PosterText) {
   if (!text)
     return
 
+  if (['fillAndStroke', 'strokeAndFill', 'stroke'].includes(renderType))
+    context.strokeStyle = await parseColor(ctx, strokeColor)
+
+  if (renderType !== 'stroke')
+    context.fillStyle = await parseColor(ctx, color)
+
   switch (renderType) {
     case 'stroke':
-      context.strokeStyle = strokeColor || color
       context.strokeText(text, x, y)
       break
     case 'fillAndStroke':
-      context.strokeStyle = strokeColor || color
-      context.fillStyle = color
       context.fillText(text, x, y)
       context.strokeText(text, x, y)
       break
-    case 'strokeAndFill':{
-      context.strokeStyle = strokeColor || color
-      context.fillStyle = color
+    case 'strokeAndFill':
       context.strokeText(text, x, y)
       context.fillText(text, x, y)
       break
-    }
     default:
-      context.fillStyle = color
       context.fillText(text, x, y)
       break
   }
 }
 
-function renderText(ctx: PosterContext, options: PosterText) {
+async function renderText(ctx: PosterContext, options: PosterText) {
   const { context, config } = ctx
   const { text, textBaseline, textAlign, letterSpacing } = options || {}
   const font = transformFont(options, config.defaultFont)
@@ -67,7 +66,7 @@ function renderText(ctx: PosterContext, options: PosterText) {
   textAlign && setTextAlign(context, textAlign)
 
   if (!letterSpacing) {
-    renderBaseText(ctx, options)
+    await renderBaseText(ctx, options)
     context.restore()
     return
   }
@@ -77,11 +76,11 @@ function renderText(ctx: PosterContext, options: PosterText) {
     font: options,
     letterSpacing,
   })
-  renderLetterSpacingText(texts, ctx, options)
+  await renderLetterSpacingText(texts, ctx, options)
   context.restore()
 }
 
-function renderEllipsisText(ctx: PosterContext, options: PosterText) {
+async function renderEllipsisText(ctx: PosterContext, options: PosterText) {
   const { context, config } = ctx
   const { defaultColor } = config
 
@@ -117,37 +116,43 @@ function renderEllipsisText(ctx: PosterContext, options: PosterText) {
   // console.log('lines', lines)
   context.save()
   context.font = font
-  context.fillStyle = color
+  context.fillStyle = await parseColor(ctx, color)
 
   textBaseline && setTextBaseline(context, textBaseline)
   textAlign && setTextAlign(context, textAlign)
 
+  const promises: any[] = []
   let drawY = y
   for (const line of lines) {
     if (!letterSpacing) {
-      renderText(ctx, { ...options, text: line, x, y: drawY })
+      promises.push(renderText(ctx, { ...options, text: line, x, y: drawY }))
     }
     else {
       let currentX = x
       texts.forEach((item) => {
         currentX += item.width
-        renderText(ctx, { ...options, text: item.text, x: currentX, y: drawY })
+        promises.push(renderText(ctx, { ...options, text: item.text, x: currentX, y: drawY }))
       })
     }
     drawY += fontSize * lineHeight
   }
+
+  await Promise.all(promises)
+
   context.restore()
 }
 
-function renderLetterSpacingText(texts: SliceText[], ctx: PosterContext, options: PosterText) {
-  const { context } = ctx
+async function renderLetterSpacingText(texts: SliceText[], ctx: PosterContext, options: PosterText) {
+  const promises: any[] = []
   const { x, y } = options
   let currentX = x
   texts.forEach((item) => {
-    setShadow(context, options)
-    renderBaseText(ctx, { ...options, text: item.text, x: currentX, y })
+    setShadow(ctx, options)
+    promises.push(renderBaseText(ctx, { ...options, text: item.text, x: currentX, y }))
     currentX += item.width
   })
+
+  await Promise.all(promises)
 }
 
 /**

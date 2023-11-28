@@ -1,21 +1,6 @@
 export type CanvasElement = HTMLCanvasElement
 export type CanvasContext = CanvasRenderingContext2D
 
-export interface CalcTextLineCountOptions {
-  text: string
-  font: FontConfig
-  width?: number
-  height?: number
-  lineHeight?: number
-  letterSpacing?: number
-  direction?: 'horizontal' | 'vertical'
-}
-export interface SliceText {
-  text: string
-  width: number
-  height: number
-}
-
 export interface PosterContext {
   config: _Config
   canvas: CanvasElement
@@ -26,6 +11,29 @@ export interface PosterContext {
   calcDPI: (data: number) => number
   calcTextWidth: (text: string, font: string, letterSpacing?: number) => number
   calcTextLineCount: (options: CalcTextLineCountOptions) => number
+}
+
+export interface PosterConfig {
+  // default: 375
+  width?: number
+  // default: auto
+  height?: number | 'auto'
+  // default: 2
+  dpi?: number
+  // default font style for text
+  defaultFont?: Partial<FontConfig>
+  // default: '#000000'
+  defaultColor?: ColorString
+  // if true, will set crossOrigin to 'anonymous'; default: true
+  cors?: boolean
+  // when cors is true and image load error, will use this proxy to get image
+  proxy?: ((src: string) => Promise<string>) | null
+}
+
+export interface _Config extends Required<Omit<PosterConfig, 'defaultFont'>> {
+  defaultFont: Required<FontConfig>
+  scaleWidth: number
+  scaleHeight: number | 'auto'
 }
 
 export interface FontConfig {
@@ -41,26 +49,68 @@ export interface FontConfig {
   lineHeight?: number
 }
 
-export interface PosterConfig {
-  // default: 375
-  width?: number
-  // default: auto
-  height?: number | 'auto'
-  // default: 2
-  dpi?: number
-  // default font style for text
-  defaultFont?: Partial<FontConfig>
-  // default: '#000000'
-  defaultColor?: string
-  // if true, will set crossOrigin to 'anonymous'; default: true
-  cors?: boolean
-  // when cors is true and image load error, will use this proxy to get image
-  proxy?: ((src: string) => Promise<string>) | null
+export type Color = ColorString | CanvasGradient | CanvasPattern | CustomColor
+export type CustomColor = PureColor | LineGradientColor | ConicGradientColor | RadialGradientColor | PatternColor
+export enum ColorType {
+  pure = 'pure',
+  lineGradient = 'line-gradient',
+  conicGradient = 'conic-gradient',
+  radialGradient = 'radial-gradient',
+  pattern = 'pattern',
 }
-export interface _Config extends Required<Omit<PosterConfig, 'defaultFont'>> {
-  defaultFont: Required<FontConfig>
-  scaleWidth: number
-  scaleHeight: number | 'auto'
+
+export type ColorString = string
+export interface PureColor {
+  type: ColorType.pure
+  color: ColorString
+}
+
+// https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/createLinearGradient
+export interface LineGradientColor {
+  type: ColorType.lineGradient
+  // createLinearGradient(x0, y0, x1, y1)
+  positions: [number, number, number, number] // [x0, y0, x1, y1]
+  // gradient.addColorStop(offset, color)
+  colors: [number, string][]
+}
+
+// https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/createConicGradient
+export interface ConicGradientColor {
+  type: ColorType.conicGradient
+  // createConicGradient(startAngle, x, y)
+  positions: [number, number, number] // [startAngle, x, y]
+  colors: [number, string][]
+}
+
+// https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/createRadialGradient
+export interface RadialGradientColor {
+  type: ColorType.radialGradient
+  // createRadialGradient(x0, y0, r0, x1, y1, r1)
+  positions: [number, number, number, number, number, number]
+  colors: [number, string][]
+}
+
+// https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/createPattern
+export interface PatternColor {
+  type: ColorType.pattern
+  // createPattern(image, repetition)
+  src: string
+  repeat?: 'repeat' | 'repeat-x' | 'repeat-y' | 'no-repeat'
+}
+
+export interface CalcTextLineCountOptions {
+  text: string
+  font: FontConfig
+  width?: number
+  height?: number
+  lineHeight?: number
+  letterSpacing?: number
+  direction?: 'horizontal' | 'vertical'
+}
+export interface SliceText {
+  text: string
+  width: number
+  height: number
 }
 
 export enum PosterType {
@@ -96,7 +146,7 @@ export interface RadiusConfig {
  * box-shadow & text-shadow
  */
 export interface ShadowConfig {
-  shadowColor?: string
+  shadowColor?: ColorString
   shadowBlur?: number
   shadowOffsetX?: number
   shadowOffsetY?: number
@@ -107,7 +157,7 @@ export interface PosterBaseRect extends RadiusConfig, ShadowConfig, PosterBaseJs
 export interface PosterRect extends PosterBaseRect {
   type: PosterType.rect
   // default: none
-  bgColor?: string | CanvasGradient | CanvasPattern
+  bgColor?: Color
   // default: 1
   opacity?: number
 }
@@ -116,7 +166,7 @@ export interface PosterLine extends PosterBaseJson {
   type: PosterType.line
   // [x, y][]
   paths: ([number, number, 'moveTo'] | [number, number])[]
-  color?: string | CanvasGradient | CanvasPattern
+  color?: Color
   // default: 1
   lineWidth?: number
   // 线条样式 default: [0, 0] 两个值分别表示虚线的长度和间距
@@ -137,7 +187,7 @@ export interface PosterImage extends PosterBaseRect {
  */
 export interface PosterBaseText extends PosterBaseJson, ShadowConfig, FontConfig {
   text: string
-  color?: string | CanvasGradient | CanvasPattern
+  color?: Color
   letterSpacing?: number
   // 这是一个实验中的功能， default: 'inherit'
   // direction?: 'ltr' | 'rtl' | 'inherit'
@@ -145,7 +195,7 @@ export interface PosterBaseText extends PosterBaseJson, ShadowConfig, FontConfig
   textAlign?: CanvasTextAlign
   // default: 'alphabetic', https://developer.mozilla.org/zh-CN/docs/Web/API/CanvasRenderingContext2D/textBaseline
   textBaseline?: CanvasTextBaseline
-  strokeColor?: string | CanvasGradient | CanvasPattern
+  strokeColor?: Color
   // default: fill
   renderType?: 'fill' | 'stroke' | 'fillAndStroke' | 'strokeAndFill'
 }

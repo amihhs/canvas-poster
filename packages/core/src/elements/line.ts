@@ -1,6 +1,7 @@
 import type { PosterContext, PosterLine } from '../types'
+import { parseColor } from './shared'
 
-export function drawLine(ctx: PosterContext, options: PosterLine) {
+export async function drawLine(ctx: PosterContext, options: PosterLine) {
   const { x, y, paths = [], color, lineWidth = 1, lineDash = [] } = options || {}
 
   const { context } = ctx
@@ -17,7 +18,7 @@ export function drawLine(ctx: PosterContext, options: PosterLine) {
   })
   context.lineWidth = lineWidth
   if (color)
-    context.strokeStyle = color
+    context.strokeStyle = await parseColor(ctx, color)
   context.stroke()
   context.restore()
 }

@@ -1,8 +1,14 @@
 import { PosterType } from './types'
-import type { CanvasContext, FontConfig, PosterImage } from './types'
+import type { CanvasContext, Color, CustomColor, FontConfig, PosterImage } from './types'
 
 export const isFunction = (val: unknown): val is (...args: any[]) => any => typeof val === 'function'
 
+export function isCustomColor(color: Color): color is CustomColor {
+  if (typeof color === 'string' || color instanceof CanvasGradient || color instanceof CanvasPattern)
+    return false
+
+  return true
+}
 // 使用字体时需要先加载字体，否则会使用默认字体
 // const myFont = new FontFace('myFont', 'url(./custom.ttf)')
 // myFont.load().then(font => {
