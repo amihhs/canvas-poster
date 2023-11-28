@@ -11,11 +11,24 @@ import { transformFont } from './utils'
 import { resolveConfig } from './config'
 
 export function createContext(config: _Config, canvasEl?: CanvasElement): PosterContext {
-  const canvas = canvasEl || createCanvas(config)
+  const canvas = canvasEl || createCanvas()
   const context = canvas.getContext('2d')!
 
+  const _ctx = {
+    config,
+    canvas,
+    context,
+    updateConfig,
+    font: (cfg: FontConfig) => transformFont(cfg, config.defaultFont),
+    sliceText,
+    calcDPI,
+    calcTextWidth,
+    calcTextLineCount,
+  }
+  updateConfig(config)
+
   function updateConfig(cfg: Partial<PosterConfig>) {
-    config = resolveConfig(cfg)
+    resolveConfig(cfg, config)
 
     canvas.width = calcDPI(config.width)
     canvas.height = calcDPI(config.height === 'auto' ? config.width : config.height)
@@ -25,7 +38,7 @@ export function createContext(config: _Config, canvasEl?: CanvasElement): Poster
   function calcDPI(data: number) {
     return data * config.dpi
   }
-  const calcTextWidth = (text: string, font: string, letterSpacing = 0) => {
+  function calcTextWidth(text: string, font: string, letterSpacing = 0) {
     context.save()
     context.font = font
     let width = context.measureText(text).width
@@ -39,7 +52,7 @@ export function createContext(config: _Config, canvasEl?: CanvasElement): Poster
   /**
    * Sliced text content
    */
-  const sliceText = (data: Omit<CalcTextLineCountOptions, 'width' | 'height' | 'direction'>) => {
+  function sliceText(data: Omit<CalcTextLineCountOptions, 'width' | 'height' | 'direction'>) {
     const { text = '', font = {}, letterSpacing = 0 } = data
 
     const fontConfig = Object.assign({}, config.defaultFont, font)
@@ -60,7 +73,7 @@ export function createContext(config: _Config, canvasEl?: CanvasElement): Poster
     return texts
   }
 
-  const calcTextLineCount = (data: CalcTextLineCountOptions) => {
+  function calcTextLineCount(data: CalcTextLineCountOptions) {
     const texts = sliceText(data)
 
     const { width = config.width, height = config.height } = data
@@ -88,23 +101,10 @@ export function createContext(config: _Config, canvasEl?: CanvasElement): Poster
     return lines.length
   }
 
-  return {
-    config,
-    canvas,
-    context,
-    updateConfig,
-    font: (cfg: FontConfig) => transformFont(cfg, config.defaultFont),
-    sliceText,
-    calcDPI,
-    calcTextWidth,
-    calcTextLineCount,
-  }
+  return _ctx
 }
 
-export function createCanvas(config: Required<PosterConfig>): CanvasElement {
+export function createCanvas(): CanvasElement {
   const canvasEl = document.createElement('canvas')
-  canvasEl.width = config.width * config.dpi
-  // when height is auto, use width temporarily and then modify it dynamically according to the content
-  canvasEl.height = (config.height === 'auto' ? canvasEl.width : config.height) * config.dpi
   return canvasEl
 }

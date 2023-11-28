@@ -18,10 +18,10 @@ export const DEFAULT_CONFIG: _Config = {
   scaleWidth: 375 * 2,
   scaleHeight: 'auto',
 }
-export function resolveConfig(config: PosterConfig = {}) {
+export function resolveConfig(config: PosterConfig = {}, _cfg?: _Config) {
   const font = Object.assign({}, DEFAULT_FONT, config.defaultFont)
 
-  const _config: _Config = Object.assign({}, DEFAULT_CONFIG, config)
+  const _config: _Config = Object.assign(_cfg || DEFAULT_CONFIG, config)
   _config.defaultFont = font
   _config.scaleWidth = _config.width * _config.dpi
   _config.scaleHeight = _config.height === 'auto' ? 'auto' : _config.height * _config.dpi

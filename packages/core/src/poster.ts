@@ -7,11 +7,11 @@ import { drawImage, drawLine, drawRect, drawText } from './elements'
 
 export type PosterInstance = ReturnType<typeof createPoster>
 export function createPoster(options: PosterConfig = {}, canvasEl?: HTMLCanvasElement) {
-  const config = resolveConfig(options)
-  const context = createContext(config, canvasEl)
+  const cfg = resolveConfig(options)
+  const context = createContext(cfg, canvasEl)
 
   const render = async (ctx: PosterContext, content: PosterJson[] = []) => {
-    const { context, canvas } = ctx
+    const { context, canvas, config } = ctx
 
     // fix: flashes as move the picture
     const temp = createContext(config)
@@ -22,17 +22,23 @@ export function createPoster(options: PosterConfig = {}, canvasEl?: HTMLCanvasEl
         await drawImage(temp, item)
 
       else if (item.type === PosterType.text)
-        drawText(temp, item)
+        await drawText(temp, item)
 
       else if (item.type === PosterType.rect)
-        drawRect(temp, item)
+        await drawRect(temp, item)
 
       else if (item.type === PosterType.line)
-        drawLine(temp, item)
+        await drawLine(temp, item)
     }
 
     context.clearRect(0, 0, canvas.width, canvas.height)
-    context.drawImage(temp.canvas, 0, 0)
+    context.drawImage(
+      temp.canvas,
+      0,
+      0,
+      ctx.config.width,
+      ctx.config.height === 'auto' ? ctx.config.width : ctx.config.height,
+    )
 
     return canvas
   }
