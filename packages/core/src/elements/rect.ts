@@ -1,5 +1,5 @@
 import type { PosterContext, PosterRect } from '../types'
-import { parseColor, setOpacity, setRadius, setShadow } from './shared'
+import { canSetShadow, parseColor, setOpacity, setRadius, setShadow } from './shared'
 
 export async function drawRect(ctx: PosterContext, options: PosterRect) {
   const { bgColor = 'none', opacity = 1 } = options || {}
@@ -8,7 +8,7 @@ export async function drawRect(ctx: PosterContext, options: PosterRect) {
   context.save()
 
   // 绘制阴影
-  setShadow(ctx, options)
+  canSetShadow(options) && setShadow(ctx, options)
 
   // 绘制圆角矩形
   setRadius(context, options)

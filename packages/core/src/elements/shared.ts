@@ -26,14 +26,18 @@ export function setTextAlign(context: PosterContext['context'], textAlign: Canva
   context.textAlign = textAlign
 }
 
+export function canSetShadow(options: ShadowConfig): options is Required<ShadowConfig> {
+  const { shadowColor, shadowBlur, shadowOffsetX, shadowOffsetY } = options || {}
+  return !!(shadowColor && typeof shadowColor === 'string' && (shadowBlur || shadowOffsetX || shadowOffsetY))
+}
 export async function setShadow<T extends ShadowConfig>(context: PosterContext, options: T) {
-  const { shadowColor, shadowBlur = 0, shadowOffsetX = 0, shadowOffsetY = 0 } = options || {}
-
-  const { context: canvasContext } = context
-
-  if (!shadowColor || typeof shadowColor !== 'string' || !(shadowBlur || shadowOffsetX || shadowOffsetY))
+  if (!canSetShadow(options))
     return
 
+  const { shadowColor, shadowBlur = 0, shadowOffsetX = 0, shadowOffsetY = 0 } = options || {}
+  const canvasContext = context.context
+
+  canvasContext.shadowColor = shadowColor
   canvasContext.shadowOffsetX = shadowOffsetX
   canvasContext.shadowOffsetY = shadowOffsetY
   canvasContext.shadowBlur = shadowBlur
@@ -88,6 +92,10 @@ async function parsePattern(context: PosterContext, color: PatternColor) {
   if (!src)
     return context.config.defaultColor
   const image = await createImage(context, src)
+  if (!image) {
+    console.warn(`Image not found: ${src}`)
+    return context.config.defaultColor
+  }
   return ctx.createPattern(image, repeat) || context.config.defaultColor
 }
 
@@ -120,7 +128,10 @@ function getSrc(options: PosterImage | string) {
     return options
   return options?.src || ''
 }
-function anonymousLoadImage(ctx: PosterContext, options: PosterImage | string): Promise<{ img: HTMLImageElement, isProxy: boolean }> {
+function anonymousLoadImage(ctx: PosterContext, options: PosterImage | string): Promise<{
+  img: HTMLImageElement
+  isProxy: boolean
+} | null> {
   return new Promise((resolve, reject) => {
     let isProxy = false
     const src = getSrc(options)
@@ -134,8 +145,8 @@ function anonymousLoadImage(ctx: PosterContext, options: PosterImage | string): 
     }
     img.onerror = async (error) => {
       if (!proxy || !isFunction(proxy) || isProxy) {
-        console.error('error', error)
-        return reject(error)
+        console.error('Image source load error:', src, error)
+        return ctx.config.debug ? reject(error) : resolve(null)
       }
 
       isProxy = true
@@ -150,14 +161,15 @@ function anonymousLoadImage(ctx: PosterContext, options: PosterImage | string): 
         proxyImageCache.set(src, res)
       }).catch((err) => {
         console.error('proxy image error:', err)
+        console.error('Image source load error:', src)
         // handler(false)
-        reject(error)
+        ctx.config.debug ? reject(error) : resolve(null)
       })
     }
   })
 }
 
-function normalLoadImage(options: PosterImage | string): Promise<{ img: HTMLImageElement, isProxy: boolean }> {
+function normalLoadImage(ctx: PosterContext, options: PosterImage | string): Promise<{ img: HTMLImageElement, isProxy: boolean } | null> {
   return new Promise((resolve, reject) => {
     const src = getSrc(options)
     const img = new Image()
@@ -166,7 +178,8 @@ function normalLoadImage(options: PosterImage | string): Promise<{ img: HTMLImag
       resolve({ img, isProxy: false })
     }
     img.onerror = (error) => {
-      reject(error)
+      console.error('Image source load error:', src, error)
+      ctx.config.debug ? reject(error) : resolve(null)
     }
   })
 }
@@ -176,12 +189,12 @@ export async function createImage(ctx: PosterContext, src: string) {
 
   try {
     if (config.proxy && config.cors) {
-      const { img } = await anonymousLoadImage(ctx, src)
+      const { img } = await anonymousLoadImage(ctx, src) || {}
       return img
     }
   }
   catch {}
 
-  const { img } = await normalLoadImage(src)
+  const { img } = await normalLoadImage(ctx, src) || {}
   return img
 }
