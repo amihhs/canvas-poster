@@ -36,9 +36,6 @@ const colorTypeOptions = [
 ]
 const defaultColorRange: RangeColor[] = [[0, '#000000'], [1, '#ffffff']]
 const colorType = ref<ColorType>()
-const colorRange = ref<RangeColor[]>()
-
-const { x = 0, y = 0, width = 0, height = 0 } = CURRENT_CHANGE_JSON.value || {}
 
 const pureForm = ref<PureColor>({
   type: ColorType.pure,
@@ -46,18 +43,18 @@ const pureForm = ref<PureColor>({
 })
 const lineGradientForm = ref<LineGradientColor>({
   type: ColorType.lineGradient,
-  positions: [x, y, width + x, height + y], // x0, y0, x1, y1
-  colors: [],
+  positions: [0, 0, 0, 0], // x0, y0, x1, y1
+  colors: Array.from(defaultColorRange),
 })
 const conicGradientForm = ref<ConicGradientColor>({
   type: ColorType.conicGradient,
-  positions: [360, x + width / 2, y + height / 2], // startAngle, x, y
-  colors: [],
+  positions: [0, 0, 0], // startAngle, x, y
+  colors: Array.from(defaultColorRange),
 })
 const radialGradientForm = ref<RadialGradientColor>({
   type: ColorType.radialGradient,
-  positions: [x, y, width, width + x, height + y, height], // x0, y0, r0, x1, y1, r1
-  colors: [],
+  positions: [0, 0, 0, 0, 0, 0], // x0, y0, r0, x1, y1, r1
+  colors: Array.from(defaultColorRange),
 })
 const patternForm = ref<PatternColor>({
   type: ColorType.pattern,
@@ -83,15 +80,12 @@ function format() {
       break
     case ColorType.lineGradient:
       lineGradientForm.value = modelValue.value
-      colorRange.value = modelValue.value.colors
       break
     case ColorType.conicGradient:
       conicGradientForm.value = modelValue.value
-      colorRange.value = modelValue.value.colors
       break
     case ColorType.radialGradient:
       radialGradientForm.value = modelValue.value
-      colorRange.value = modelValue.value.colors
       break
     case ColorType.pattern:
       patternForm.value = modelValue.value
@@ -100,15 +94,28 @@ function format() {
 
   if (!colorType.value)
     colorType.value = modelValue.value.type
-  if (!colorRange.value)
-    colorRange.value = defaultColorRange
 }
+watch(colorType, (nv, ov) => {
+  if (!colorType.value)
+    format()
 
+  if (!ov || !CURRENT_CHANGE_JSON.value)
+    return
+
+  const { x = 0, y = 0, width = 0, height = 0 } = CURRENT_CHANGE_JSON.value
+  switch (nv) {
+    case ColorType.lineGradient:
+      lineGradientForm.value.positions = [x, y, width + x, height + y]
+      break
+    case ColorType.conicGradient:
+      conicGradientForm.value.positions = [360, x + width / 2, y + height / 2]
+      break
+    case ColorType.radialGradient:
+      radialGradientForm.value.positions = [x, y, width, width + x, height + y, height]
+      break
+  }
+}, { immediate: true })
 watchEffect(() => {
-  !colorType.value && format()
-
-  const range: RangeColor[] = colorRange.value || defaultColorRange
-
   switch (colorType.value) {
     case ColorType.pure:
       modelValue.value = pureForm.value
@@ -116,19 +123,16 @@ watchEffect(() => {
     case ColorType.lineGradient:
       modelValue.value = {
         ...lineGradientForm.value,
-        colors: range,
       }
       break
     case ColorType.conicGradient:
       modelValue.value = {
         ...conicGradientForm.value,
-        colors: range,
       }
       break
     case ColorType.radialGradient:
       modelValue.value = {
         ...radialGradientForm.value,
-        colors: range,
       }
       break
     case ColorType.pattern:
@@ -150,76 +154,76 @@ watchEffect(() => {
         {{ v.label }}
       </button>
     </div>
-    <div v-if="colorType === ColorType.pure" class="grid place-content-center">
-      <input v-model="pureForm.color" type="color">
-    </div>
-    <div v-else-if="colorType === ColorType.lineGradient" class="grid grid-cols-2 gap-sm">
-      <input
-        v-for="tip, key in ['x0', 'y0', 'x1', 'y1']"
-        :key="key"
-        v-model="lineGradientForm.positions[key]"
-        class="input"
-        type="text"
-        inputmode="numeric"
-        pattern="\d*"
-        :placeholder="tip"
-        :title="tip"
-      >
-    </div>
-    <div v-else-if="colorType === ColorType.conicGradient" class="grid grid-cols-3 gap-sm">
-      <input
-        v-for="tip, key in [t('setting.angle'), 'x', 'y']"
-        :key="key"
-        v-model="conicGradientForm.positions[key]"
-        :data-key="conicGradientForm.positions[key]"
-        :placeholder="tip"
-        :title="tip"
-        class="input"
-        type="text"
-        inputmode="numeric"
-        pattern="\d*"
-      >
-    </div>
-    <div v-else-if="colorType === ColorType.radialGradient" class="grid grid-cols-3 gap-3">
-      <input
-        v-for="tip, key in ['x0', 'y0', 'r0', 'x1', 'y1', 'r1']"
-        :key="key"
-        v-model="radialGradientForm.positions[key]"
-        :placeholder="tip"
-        :title="tip"
-        class="input"
-        type="text"
-        inputmode="numeric"
-        pattern="\d*"
-      >
-    </div>
+    <input v-if="colorType === ColorType.pure" v-model="pureForm.color" type="color" w-full>
+    <template v-else-if="colorType === ColorType.lineGradient">
+      <div class="grid grid-cols-2 gap-sm">
+        <input
+          v-for="tip, key in ['x0', 'y0', 'x1', 'y1']"
+          :key="key"
+          v-model.number="lineGradientForm.positions[key]"
+          class="input"
+          type="text"
+          inputmode="numeric"
+          pattern="\d*"
+          :placeholder="tip"
+          :title="tip"
+        >
+      </div>
+      <UtilsColorRange v-model="lineGradientForm.colors" mt-sm />
+    </template>
+    <template v-else-if="colorType === ColorType.conicGradient">
+      <div class="grid grid-cols-3 gap-sm">
+        <input
+          v-for="tip, key in [t('setting.angle'), 'x', 'y']"
+          :key="key"
+          v-model.number="conicGradientForm.positions[key]"
+          :placeholder="tip"
+          :title="tip"
+          class="input"
+          type="text"
+          inputmode="numeric"
+          pattern="\d*"
+        >
+      </div>
+      <UtilsColorRange v-model="conicGradientForm.colors" mt-sm />
+    </template>
+    <template v-else-if="colorType === ColorType.radialGradient">
+      <div class="grid grid-cols-3 gap-3">
+        <input
+          v-for="tip, key in ['x0', 'y0', 'r0', 'x1', 'y1', 'r1']"
+          :key="key"
+          v-model.number="radialGradientForm.positions[key]"
+          :placeholder="tip"
+          :title="tip"
+          class="input"
+          type="text"
+          inputmode="numeric"
+          pattern="\d*"
+        >
+      </div>
+      <UtilsColorRange v-model="radialGradientForm.colors" mt-sm />
+    </template>
     <div v-else-if="colorType === ColorType.pattern">
-      <div class="form-item">
-        <label>{{ t('setting.imagePath') }}</label>
-        <input v-model="patternForm.src" class="input" type="text">
+      <div class="px-3">
+        <div class="mb-2">
+          {{ t('setting.imagePath') }}
+        </div>
+        <UtilsFile v-model="patternForm.src" class="px-3 " />
+        <img v-parse-url w-20 h-20 block m-auto mt-2 :src="patternForm.src">
       </div>
       <div class="form-item">
         <label>{{ t('setting.repeat') }}</label>
         <select v-model="patternForm.repeat" class="input">
-          <option value="repeat">
-            repeat
-          </option>
-          <option value="repeat-x">
-            repeat-x
-          </option>
-          <option value="repeat-y">
-            repeat-y
-          </option>
-          <option value="no-repeat">
-            no-repeat
+          <option
+            v-for="v in ['repeat', 'repeat-x', 'repeat-y', 'no-repeat']"
+            :key="v"
+            :value="v"
+          >
+            {{ v }}
           </option>
         </select>
       </div>
     </div>
-    <UtilsColorRange
-      v-if="colorType && ![ColorType.pure, ColorType.pattern].includes(colorType)"
-      v-model="colorRange" mt-sm
-    />
   </div>
 </template>
 

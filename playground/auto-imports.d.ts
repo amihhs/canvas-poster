@@ -101,6 +101,7 @@ declare global {
   const onStartTyping: typeof import('@vueuse/core')['onStartTyping']
   const onUnmounted: typeof import('vue')['onUnmounted']
   const onUpdated: typeof import('vue')['onUpdated']
+  const parseSourceUrl: typeof import('./src/logic/shared')['parseSourceUrl']
   const pausableWatch: typeof import('@vueuse/core')['pausableWatch']
   const posterDetailHandler: typeof import('./src/logic/edit/index')['posterDetailHandler']
   const provide: typeof import('vue')['provide']

@@ -39,6 +39,8 @@ const baseText: PosterBaseText = {
   letterSpacing: 1,
   ...baseShadow,
   ...baseDefault,
+  width: 80,
+  height: (baseFont.fontSize || 14) * (baseFont.lineHeight || 1),
 }
 
 const lineDefaultForm: PosterLine = {

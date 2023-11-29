@@ -27,6 +27,7 @@ export const ADD_FROM_KEY = Symbol('ADD_FROM_KEY')
  * @description 基础设置默认值
  */
 export const baseSettingDefault: BaseSetting = {
+  debug: true,
   width: 375,
   height: 'auto',
   dpi: window.devicePixelRatio || 2,

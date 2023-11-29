@@ -4,7 +4,12 @@ import type { CanvasContext, Color, CustomColor, FontConfig, PosterImage } from 
 export const isFunction = (val: unknown): val is (...args: any[]) => any => typeof val === 'function'
 
 export function isCustomColor(color: Color): color is CustomColor {
-  if (typeof color === 'string' || color instanceof CanvasGradient || color instanceof CanvasPattern)
+  if (
+    !color
+    || typeof color === 'string'
+    || color instanceof CanvasGradient
+    || color instanceof CanvasPattern
+  )
     return false
 
   return true

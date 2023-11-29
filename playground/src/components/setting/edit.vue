@@ -1,6 +1,7 @@
 <script setup lang='ts'>
 import { PosterType } from '@amihhs/canvas-poster'
 
+const { t } = useI18n()
 const itemType = computed(() => {
   return CURRENT_CHANGE_JSON.value ? CURRENT_CHANGE_JSON.value.type : null
 })
@@ -14,13 +15,13 @@ const components = {
 </script>
 
 <template>
-  <h1 class="font-bold text-4">
-    详细参数
+  <h1 class="font-bold text-lg">
+    {{ t('edit.detail.title') }}
   </h1>
   <div v-if="itemType">
     <component :is="components[itemType]" />
   </div>
-  <div v-else>
-    <div>请先选择一个内容</div>
+  <div v-else class="text-3.5 text-center mt-xl text-slate-4">
+    <div>{{ t('edit.detail.emptyTips') }}</div>
   </div>
 </template>

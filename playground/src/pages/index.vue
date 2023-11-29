@@ -40,7 +40,11 @@ const list = useObservable(liveQuery(() => getPosters()) as unknown as Observabl
         <div font-bold text-lg>
           {{ v.name }}
         </div>
-        <img class="w-full aspect-4/3 border-(1 slate-1) my-2" :src="v.poster || '/logo.svg'" alt="">
+        <img
+          v-parse-url
+          class="w-full aspect-4/3 border-(1 slate-1) my-2 object-contain"
+          :src="v.poster || '/logo.svg'" alt=""
+        >
         <div text-3 text-slate-3>
           Created By {{ dateFormatted(v.createdAt) }}
         </div>

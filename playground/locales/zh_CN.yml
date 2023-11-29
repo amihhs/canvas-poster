@@ -9,6 +9,11 @@ button:
 home:
   title: 历史记录
 
+edit:
+  detail:
+    title: 详细参数
+    emptyTips: 请先选择一个内容
+
 setting:
   base: 基础设置
   dpi: 像素比
@@ -21,11 +26,14 @@ setting:
   fontWeight: 字体粗细
   fontStyle: 字体风格
   lineHeight: 字体行高
+  fontColor: 字体颜色
+  background: 背景颜色
   startPoint: 起始点
   endPoint: 终止点
   angle: 角度
   imagePath: 图片地址
   repeat: 重复方式
+  shadow: 阴影
 
 color:
   pure: 纯色

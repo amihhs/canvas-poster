@@ -18,6 +18,7 @@ declare module 'vue' {
     ElementLineShow: typeof import('./src/components/element/lineShow.vue')['default']
     ElementRect: typeof import('./src/components/element/rect.vue')['default']
     ElementRectShow: typeof import('./src/components/element/rectShow.vue')['default']
+    ElementShadow: typeof import('./src/components/element/shadow.vue')['default']
     ElementText: typeof import('./src/components/element/text.vue')['default']
     ElementTextShow: typeof import('./src/components/element/textShow.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
@@ -30,6 +31,9 @@ declare module 'vue' {
     UtilsColor: typeof import('./src/components/utils/color.vue')['default']
     UtilsColorLineGradient: typeof import('./src/components/utils/color-line-gradient.vue')['default']
     UtilsColorRange: typeof import('./src/components/utils/color-range.vue')['default']
+    UtilsFile: typeof import('./src/components/utils/file.vue')['default']
     UtilsI18n: typeof import('./src/components/utils/i18n.vue')['default']
+    UtilsImage: typeof import('./src/components/utils/image.vue')['default']
+    UtilsTips: typeof import('./src/components/utils/tips.vue')['default']
   }
 }

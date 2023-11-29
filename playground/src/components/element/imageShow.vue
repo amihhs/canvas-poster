@@ -8,7 +8,7 @@ withDefaults(defineProps<{
 
 <template>
   <div class="flex items-center">
-    <span class="text-3 text-slate-4 mr-1">Image</span>
+    <span class="show-label">Image</span>
     <span>{{ value.src }}</span>
   </div>
 </template>

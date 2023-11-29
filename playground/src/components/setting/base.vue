@@ -44,6 +44,10 @@ const baseSetting = inject<Ref<BaseSetting>>(BASE_SETTING_KEY, ref(baseSettingDe
         <span class="text-3.5">{{ t('setting.fontFamily') }}</span>
         <input v-model="baseSetting.defaultFont.fontFamily" type="text" class="input">
       </div>
+      <div class="form-item">
+        <span class="text-3.5">Debug</span>
+        <Switch v-model="baseSetting.debug" />
+      </div>
     </div>
   </template>
 </template>

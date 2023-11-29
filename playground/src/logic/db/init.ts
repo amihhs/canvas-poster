@@ -12,7 +12,7 @@ export class PosterClassedDexie extends Dexie {
     this.version(1).stores({
       posters: '++id, name, dataFormat, createdAt, updatedAt', // Primary key and indexed props
       postersJson: '++id, posterId, base, json, createdAt, updatedAt', // Primary key and indexed props
-      sources: '++id, type, blob',
+      sources: 'url, blob',
     })
   }
 }

@@ -1,5 +1,5 @@
-import type { PosterInstance } from '@amihhs/canvas-poster'
-import { createPoster } from '@amihhs/canvas-poster'
+import type { Color, PosterInstance } from '@amihhs/canvas-poster'
+import { ColorType, PosterType, createPoster, isCustomColor } from '@amihhs/canvas-poster'
 import { v4 as uuidv4 } from 'uuid'
 import type { BaseSetting, DrawJson, PosterJsonDB } from '@/interface'
 
@@ -11,8 +11,9 @@ export function posterDetailHandler() {
   const baseSetting = ref<BaseSetting>(Object.assign({}, baseSettingDefault))
 
   const { canvasRef, posterInstance, createPosterInitHandler } = createPosterHandler()
+  const transformCache = new Map<string, string>()
 
-  function updateRender() {
+  async function updateRender() {
     if (!posterInstance.value)
       return
 
@@ -21,7 +22,50 @@ export function posterDetailHandler() {
     if (state.value === 'success')
       updatePosterHandler()
 
-    render(context, unref(posterJson) || [])
+    async function transformSource() {
+      const oldJson = unref(posterJson) || []
+      const json = []
+      const promises = []
+      async function replace(src: string, cb: (url: string) => void = () => {}) {
+        if (transformCache.has(src)) {
+          const url = transformCache.get(src) as string
+          cb(url)
+          return
+        }
+
+        const url = await parseSourceUrl(src)
+        transformCache.set(src, url)
+        cb(url)
+      }
+
+      for (let i = 0; i < oldJson.length; i++) {
+        const item = JSON.parse(JSON.stringify(oldJson[i])) as DrawJson
+        if (item.type === 'image' && item.src.startsWith('image|')) {
+          promises.push(replace(item.src, src => item.src = src))
+        }
+        else if (item.type === PosterType.rect || item.type === PosterType.text) {
+          const keys = {
+            [PosterType.rect]: ['bgColor'],
+            [PosterType.text]: ['color', 'strokeColor'],
+          }
+          for (const key of keys[item.type]) {
+            // @ts-expect-error eslint-disable-line ts/ban-ts-comment
+            const color = item[key] as Color
+            if (!color || !isCustomColor(color))
+              continue
+            if (color.type === ColorType.pattern)
+              promises.push(replace(color.src, src => color.src = src))
+          }
+        }
+
+        json.push(item)
+      }
+      await Promise.all(promises)
+      return json
+    }
+    // transform source url
+    const json = await transformSource()
+    render(context, json)
     updateDrawContext(unref(posterJson) || [])
   }
 
@@ -118,7 +162,7 @@ export function createPosterHandler() {
     if (!canvasRef.value)
       return
 
-    posterInstance.value = createPoster(baseSetting || {}, canvasRef.value)
+    posterInstance.value = createPoster(baseSetting || { debug: true }, canvasRef.value)
   }
 
   return {
@@ -132,23 +176,15 @@ export function createPosterHandler() {
  * Update poster cover image
  */
 export async function updatePosterPictureHandler(posterId: number, blob: Blob) {
-  const poster = await getPoster(posterId)
-  if (!poster)
+  const posterDetail = await getPoster(posterId)
+  if (!posterDetail)
     throw new Error('poster not found')
 
-  const sourceId = poster.poster
-  if (sourceId) {
-    const b = await getSource(sourceId)
-    if (b) {
-      updateSource(sourceId, { blob, type: 'image', tags: ['poster'] })
-      return
-    }
-  }
-  const id = await addSource({
+  const url = posterDetail.poster ? posterDetail.poster : `image|${URL.createObjectURL(blob)}`
+  await addSource({
+    url,
     blob,
-    type: 'image',
-    tags: ['poster'],
   })
 
-  id && updatePoster(posterId, { poster: id as number })
+  updatePoster(posterId, { poster: url })
 }

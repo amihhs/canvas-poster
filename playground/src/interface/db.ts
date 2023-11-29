@@ -5,14 +5,12 @@ export interface PosterDB {
   id?: number
   name: string
   dataFormat: Record<string, unknown>
-  poster: number
+  poster: string
   createdAt: number
   updatedAt: number
 }
 export interface PosterSourceDB {
-  id?: number
-  type: 'image'
-  tags: string[]
+  url: string
   blob: Blob
 }
 export interface PosterJsonDB {

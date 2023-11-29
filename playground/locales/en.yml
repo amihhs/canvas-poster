@@ -9,6 +9,11 @@ button:
 home:
   title: Historical Posters
 
+edit:
+  detail:
+    title: Parameter details
+    emptyTips: Please select a content first
+
 setting:
   base: Base Setting
   dpi: DPI
@@ -21,11 +26,14 @@ setting:
   fontWeight: Weight
   fontStyle: Style
   lineHeight: Line Height
+  fontColor: Font Color
+  background: Background
   startPoint: Start Point
   endPoint: End Point
   angle: Angle
   imagePath: Image URL
   repeat: Repeat Type
+  shadow: Shadow
 
 color:
   pure: Pure

@@ -42,8 +42,8 @@ onBeforeRouteLeave(() => {
 <template>
   <div>
     <div v-if="state === 'success'" class=" bg-gray-2 p-3 font-mono">
-      <div id="container" class="pt-5 grid place-content-center relative">
-        <canvas ref="canvasRef" class="origin-top-center" :style="style" />
+      <div id="container" class="pt-5 grid place-content-center relative ">
+        <canvas ref="canvasRef" class="origin-top-center border-(3 dashed slate-1)" :style="style" />
         <EditSelected />
       </div>
       <EditRight />

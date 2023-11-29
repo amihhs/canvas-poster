@@ -3,10 +3,10 @@ import type { PosterDB } from '@/interface'
 
 export async function getPosters() {
   const posters = await db.posters.where('id').above(0).toArray()
-  const sourceIds = posters.map(item => item.poster)
-  const sources = await db.sources.where('id').anyOf(sourceIds).toArray()
+  const sourceUrls = posters.map(item => item.poster)
+  const sources = await db.sources.where('url').anyOf(sourceUrls).toArray()
   return posters.map((item) => {
-    const source = sources.find(source => source.id === item.poster)
+    const source = sources.find(source => source.url === item.poster)
     return {
       ...item,
       poster: source?.blob ? URL.createObjectURL(source.blob) : '',

@@ -10,4 +10,8 @@ Object.values(
   import.meta.glob<{ install: UserModule }>('./modules/*.ts', { eager: true }),
 ).forEach(i => i.install?.({ app }))
 
+Object.values(
+  import.meta.glob<{ install: UserModule }>('./modules/directive/*.ts', { eager: true }),
+).forEach(i => i.install?.({ app }))
+
 app.mount('#app')

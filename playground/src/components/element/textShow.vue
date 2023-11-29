@@ -8,7 +8,7 @@ withDefaults(defineProps<{
 
 <template>
   <div class="flex items-center">
-    <span class="text-3 text-slate-4 mr-1">Text</span>
+    <span class="show-label">Text</span>
     <span>{{ value.text }}</span>
   </div>
 </template>

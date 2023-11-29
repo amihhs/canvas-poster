@@ -51,7 +51,7 @@ async function createPoster() {
     const id = await addPoster({
       name: formData.value.name,
       dataFormat: JSON.parse(formData.value.data),
-      poster: 0,
+      poster: '',
     })
     modal.value = false
     router.push(`/edit?id=${id}`)

@@ -15,8 +15,10 @@ export default defineConfig({
   // 通过组合现有实用程序来创建新的实用程序
   shortcuts: [
     ['scrollbar', 'scrollbar:w-1.5 scrollbar:h-1.5 scrollbar:bg-transparent scrollbar-track:bg-slate-100 scrollbar-thumb:rounded scrollbar-thumb:bg-slate-300 scrollbar-track:rounded dark:scrollbar-track:bg-slate-500/[0.16] dark:scrollbar-thumb:bg-slate-500/50 pr-2'],
-    ['input', 'px-3 border-(2 slate-3) rounded-md h-8'],
+    ['show-label', 'text-3.5 text-slate-4 mr-2 font-bold'],
     ['form-item', 'text-4 flex items-center gap-sm justify-between border-(b-1 slate-1) p-3 last:border-0'],
+    ['label', 'inline-flex items-center gap-1'],
+    ['input', 'px-3 border-(2 slate-3) rounded-md h-8'],
   ],
   theme: {},
   // 预设
