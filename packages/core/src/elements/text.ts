@@ -1,16 +1,19 @@
 import type { PosterContext, PosterText, SliceText } from '../types'
 import { transformFont } from '../utils'
-import { parseColor, setShadow, setTextAlign, setTextBaseline } from './shared'
+import { canSetShadow, parseColor, setShadow, setTextAlign, setTextBaseline } from './shared'
 
 /**
  * draw text
  * support: text, textEllipsis
  */
 export async function drawText(ctx: PosterContext, options: PosterText) {
+  const { context } = ctx
+  context.save()
   if (!options.ellipsis)
-    return await renderText(ctx, options)
-
-  await renderEllipsisText(ctx, options)
+    await renderText(ctx, options)
+  else
+    await renderEllipsisText(ctx, options)
+  context.restore()
 }
 
 async function renderBaseText(ctx: PosterContext, options: PosterText) {
@@ -58,8 +61,6 @@ async function renderText(ctx: PosterContext, options: PosterText) {
   const { text, textBaseline, textAlign, letterSpacing } = options || {}
   const font = transformFont(options, config.defaultFont)
 
-  context.save()
-
   context.font = font
 
   textBaseline && setTextBaseline(context, textBaseline)
@@ -67,17 +68,11 @@ async function renderText(ctx: PosterContext, options: PosterText) {
 
   if (!letterSpacing) {
     await renderBaseText(ctx, options)
-    context.restore()
     return
   }
 
-  const texts = ctx.sliceText({
-    text,
-    font: options,
-    letterSpacing,
-  })
+  const texts = ctx.sliceText({ text, font: options, letterSpacing })
   await renderLetterSpacingText(texts, ctx, options)
-  context.restore()
 }
 
 async function renderEllipsisText(ctx: PosterContext, options: PosterText) {
@@ -113,7 +108,6 @@ async function renderEllipsisText(ctx: PosterContext, options: PosterText) {
     { width: ctx.calcTextWidth(ellipsis, font, letterSpacing), ellipsis },
     lineCount,
   )
-  // console.log('lines', lines)
   context.save()
   context.font = font
   context.fillStyle = await parseColor(ctx, color)
@@ -125,13 +119,14 @@ async function renderEllipsisText(ctx: PosterContext, options: PosterText) {
   let drawY = y
   for (const line of lines) {
     if (!letterSpacing) {
-      promises.push(renderText(ctx, { ...options, text: line, x, y: drawY }))
+      promises.push(renderBaseText(ctx, { ...options, text: line, x, y: drawY }))
     }
     else {
       let currentX = x
-      texts.forEach((item) => {
+      const lineTexts = ctx.sliceText({ text: line, font: options, letterSpacing })
+      lineTexts.forEach((item) => {
+        promises.push(renderBaseText(ctx, { ...options, text: item.text, x: currentX, y: drawY }))
         currentX += item.width
-        promises.push(renderText(ctx, { ...options, text: item.text, x: currentX, y: drawY }))
       })
     }
     drawY += fontSize * lineHeight
@@ -144,12 +139,13 @@ async function renderEllipsisText(ctx: PosterContext, options: PosterText) {
 
 async function renderLetterSpacingText(texts: SliceText[], ctx: PosterContext, options: PosterText) {
   const promises: any[] = []
-  const { x, y } = options
+  const { x, y, letterSpacing = 0 } = options
   let currentX = x
+
   texts.forEach((item) => {
-    setShadow(ctx, options)
+    canSetShadow(options) && setShadow(ctx, options)
     promises.push(renderBaseText(ctx, { ...options, text: item.text, x: currentX, y }))
-    currentX += item.width
+    currentX += item.width + letterSpacing
   })
 
   await Promise.all(promises)
@@ -168,11 +164,24 @@ function generateEllipsisTextLines(
   const lines = []
   let line = ''
   let lineWidth = 0
-  for (const item of texts) {
+
+  let maxOverIndex = texts.length
+  let overWidth = 0
+  for (const index in texts.reverse()) {
+    const item = texts[index]
+    if (overWidth > ellipsisWidth)
+      break
+    overWidth += item.width
+    maxOverIndex -= 1
+  }
+
+  for (const index in texts.reverse()) {
+    const item = texts[index]
     const isLastLine = lines.length === lineCount - 1
     const isLastText = texts[texts.length - 1] === item
     const checkWidth = (isLastLine && !isLastText) ? width - ellipsisWidth : width
-    if (lineWidth + item.width > checkWidth) {
+
+    if (lineWidth + item.width > checkWidth && Number(index) < maxOverIndex) {
       lines.push(line)
       line = ''
       lineWidth = 0

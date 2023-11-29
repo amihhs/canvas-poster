@@ -42,8 +42,9 @@ export function createContext(config: _Config, canvasEl?: CanvasElement): Poster
     context.save()
     context.font = font
     let width = context.measureText(text).width
+    const len = text.length
     if (letterSpacing)
-      width = width + (text.length - 1) * letterSpacing
+      width = width + (len === 1 ? letterSpacing : (text.length - 1) * letterSpacing)
 
     context.restore()
     return width
