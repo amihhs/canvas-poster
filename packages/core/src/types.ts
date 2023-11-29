@@ -14,6 +14,7 @@ export interface PosterContext {
 }
 
 export interface PosterConfig {
+  debug?: boolean
   // default: 375
   width?: number
   // default: auto

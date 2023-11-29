@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { PosterConfig, PosterContext, PosterJson } from './types'
 import { PosterType } from './types'
 import { isFunction } from './utils'
@@ -12,6 +13,9 @@ export function createPoster(options: PosterConfig = {}, canvasEl?: HTMLCanvasEl
 
   const render = async (ctx: PosterContext, content: PosterJson[] = []) => {
     const { context, canvas, config } = ctx
+
+    const { debug } = config
+    debug && console.log('[debug] Render', content)
 
     // fix: flashes as move the picture
     const temp = createContext(config)

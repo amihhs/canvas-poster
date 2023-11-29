@@ -8,6 +8,7 @@ export const DEFAULT_FONT: Required<FontConfig> = {
   lineHeight: 1,
 }
 export const DEFAULT_CONFIG: _Config = {
+  debug: false,
   width: 375,
   height: 'auto',
   dpi: 2,
