@@ -2,15 +2,15 @@ import type { PosterContext, PosterLine } from '../types'
 import { parseColor } from './shared'
 
 export async function drawLine(ctx: PosterContext, options: PosterLine) {
-  const { x, y, paths = [], color, lineWidth = 1, lineDash = [] } = options || {}
+  const { paths = [], color, lineWidth = 1, lineDash = [] } = options || {}
 
   const { context } = ctx
 
   context.save()
   context.beginPath()
   context.setLineDash(lineDash)
-  context.moveTo(x, y)
-  paths.forEach((item) => {
+  context.moveTo(paths[0][0], (paths[0][1]))
+  paths.slice(1).forEach((item) => {
     if (item[2] === 'moveTo')
       context.moveTo(item[0], item[1])
     else
