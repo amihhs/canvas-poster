@@ -13,6 +13,12 @@ function updateEllipsis(value: boolean) {
   else
     CURRENT_CHANGE_JSON.value.ellipsis = undefined
 }
+
+const selects = {
+  textAlign: ['left', 'center', 'right', 'start', 'end'],
+  textBaseline: ['top', 'middle', 'bottom', 'alphabetic', 'hanging', 'ideographic'],
+  renderType: ['fill', 'stroke', 'fillAndStroke', 'strokeAndFill'],
+}
 </script>
 
 <template>
@@ -22,12 +28,15 @@ function updateEllipsis(value: boolean) {
       <input v-model="CURRENT_CHANGE_JSON.text" class="input">
     </div>
     <ElementBase />
-    <div class="p-3 border-(b-1 slate-1)">
-      <div class="mb-2 font-bold">
-        {{ t('setting.fontColor') }}
-      </div>
-      <UtilsColor v-model="CURRENT_CHANGE_JSON.color" />
+    <div v-for="v, key in selects" :key="key" class="form-item">
+      <label class="label">{{ t(`setting.${key}`) }}</label>
+      <select v-model="CURRENT_CHANGE_JSON[key]" class="input">
+        <option v-for="value, index in v" :key="value" :value="value" :selected="index === 0">
+          {{ value }}
+        </option>
+      </select>
     </div>
+    <ElementFont v-model="CURRENT_CHANGE_JSON" />
     <div class="form-item">
       <label class="label">Ellipsis</label>
       <div flex items-center gap-2 min-h-14>
@@ -40,13 +49,26 @@ function updateEllipsis(value: boolean) {
         <Switch flex-shrink-0 :model-value="Boolean(CURRENT_CHANGE_JSON.ellipsis)" @update:model-value="updateEllipsis" />
       </div>
     </div>
-    <div class="form-item">
-      <label class="label">Letter Spacing</label>
-      <input v-model.number="CURRENT_CHANGE_JSON.letterSpacing" class="input flex-grow w-30">
+    <div class="p-3 border-(b-1 slate-1)">
+      <div class="mb-2 font-bold">
+        {{ t('setting.fontColor') }}
+      </div>
+      <UtilsColor v-model="CURRENT_CHANGE_JSON.color" />
+    </div>
+    <div
+      v-if="CURRENT_CHANGE_JSON.renderType
+        && ['fillAndStroke', 'strokeAndFill'].includes(CURRENT_CHANGE_JSON.renderType)"
+      class="p-3 border-(b-1 slate-1)"
+    >
+      <div class="mb-2 font-bold">
+        {{ t('setting.strokeColor') }}
+      </div>
+      <UtilsColor v-model="CURRENT_CHANGE_JSON.strokeColor" />
     </div>
     <ElementShadow />
   </div>
 </template>
 
 <style lang='scss' scoped>
+
 </style>

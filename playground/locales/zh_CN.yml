@@ -19,14 +19,21 @@ setting:
   dpi: 像素比
   width: 宽
   height: 高
+  color: 颜色
   defaultColor: 默认字体颜色
   defaultFont: 默认字体样式
   fontSize: 字体大小
+  font: 字体格式
   fontFamily: 字体
   fontWeight: 字体粗细
   fontStyle: 字体风格
   lineHeight: 字体行高
+  textAlign: 文本对齐
+  textBaseline: 文本基线
+  letterSpacing: 文本间隔
+  renderType: 渲染类型
   fontColor: 字体颜色
+  strokeColor: 描边颜色
   background: 背景颜色
   startPoint: 起始点
   endPoint: 终止点
@@ -34,6 +41,10 @@ setting:
   imagePath: 图片地址
   repeat: 重复方式
   shadow: 阴影
+  ellipsis: 省略
+  lineWidth: 线宽
+  lineDash: 虚线间隔
+  paths: 线条路径
 
 color:
   pure: 纯色
@@ -41,3 +52,6 @@ color:
   conicGradient: 锥形渐变
   radialGradient: 径向渐变
   pattern: 图案
+
+tips:
+  lineDash: 使用一组值来指定描述模式的线和间隙的交替长度

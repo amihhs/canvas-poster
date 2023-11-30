@@ -19,21 +19,31 @@ setting:
   dpi: DPI
   width: Width
   height: Height
+  color: Color
   defaultColor: Default Color
   defaultFont: Default Font
   fontSize: Size
+  font: Font
   fontFamily: Family
   fontWeight: Weight
   fontStyle: Style
   lineHeight: Line Height
+  textAlign: Align
+  textBaseline: Baseline
+  letterSpacing: Letter Spacing
+  renderType: Render
   fontColor: Font Color
   background: Background
   startPoint: Start Point
   endPoint: End Point
   angle: Angle
   imagePath: Image URL
-  repeat: Repeat Type
+  repeat: Repeat
   shadow: Shadow
+  ellipsis: Ellipsis
+  lineWidth: Line Width
+  lineDash: Line Dash
+  paths: Line Paths
 
 color:
   pure: Pure
@@ -41,3 +51,6 @@ color:
   conicGradient: ConicGradient
   radialGradient: RadialGradient
   pattern: Pattern
+
+tips:
+  lineDash: uses an array of values that specify alternating lengths of lines and gaps which describe the pattern

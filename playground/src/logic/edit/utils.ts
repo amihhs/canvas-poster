@@ -1,13 +1,31 @@
+import type { PosterLine } from '@amihhs/canvas-poster'
 import { PosterType } from '@amihhs/canvas-poster'
 import type { CanvasControlLocationJson, DrawJson } from '@/interface'
 import { toBase64 } from '@/shared'
 
 export function isCanvasBgRect(data: CanvasControlLocationJson, canvas: HTMLCanvasElement) {
-  return data.x === 0
+  return data.type === PosterType.rect
+    && data.x === 0
     && data.y === 0
     && data.width === canvas?.clientWidth
     && data.height === canvas?.clientHeight
-    && data.type === PosterType.rect
+}
+
+function isPointInLine(paths: PosterLine['paths'], x: number, y: number) {
+  const { length } = paths
+  let isPointInLine = false
+  for (let i = 0; i < length - 1; i++) {
+    const [x1, y1] = paths[i]
+    const [x2, y2] = paths[i + 1]
+    const slope = (y2 - y1) / (x2 - x1)
+    const diffY = slope * x + y1 - slope * x1
+    const offset = 5
+    if (diffY + offset > y && diffY - offset < y) {
+      isPointInLine = true
+      break
+    }
+  }
+  return isPointInLine
 }
 
 export function findCurrentHoveItemKey(
@@ -20,7 +38,16 @@ export function findCurrentHoveItemKey(
     if (EXCLUDE_SELECT_ID.includes(data.id))
       continue
 
-    if (x > data.x && x < data.x + data.width && y > data.y && y < data.y + data.height)
+    if (
+      data.type !== PosterType.line
+      && x > data.x
+      && x < data.x + data.width
+      && y > data.y
+      && y < data.y + data.height
+    )
+      items.push({ key: _, index: data.sort })
+
+    else if (data.type === PosterType.line && isPointInLine(data.paths, x, y))
       items.push({ key: _, index: data.sort })
   }
   if (!items.length)

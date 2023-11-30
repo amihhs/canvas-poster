@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { ColorType } from '@amihhs/canvas-poster'
+import { ColorType, PosterType } from '@amihhs/canvas-poster'
 import type { Color, ConicGradientColor, LineGradientColor, PatternColor, PureColor, RadialGradientColor } from '@amihhs/canvas-poster'
 import type { RangeColor } from '@/interface'
 import { CURRENT_CHANGE_JSON } from '@/logic/edit/const'
@@ -102,7 +102,29 @@ watch(colorType, (nv, ov) => {
   if (!ov || !CURRENT_CHANGE_JSON.value)
     return
 
-  const { x = 0, y = 0, width = 0, height = 0 } = CURRENT_CHANGE_JSON.value
+  let x = 0
+  let y = 0
+  let width = 0
+  let height = 0
+
+  if (CURRENT_CHANGE_JSON.value.type !== PosterType.line) {
+    x = CURRENT_CHANGE_JSON.value.x
+    y = CURRENT_CHANGE_JSON.value.y
+    width = CURRENT_CHANGE_JSON.value.width
+    height = CURRENT_CHANGE_JSON.value.height
+  }
+  else {
+    const xList = CURRENT_CHANGE_JSON.value.paths?.map(v => v[0]) ?? []
+    const yList = CURRENT_CHANGE_JSON.value.paths?.map(v => v[1]) ?? []
+    const maxX = Math.max(...xList)
+    const minX = Math.min(...xList)
+    const maxY = Math.max(...yList)
+    const minY = Math.min(...yList)
+    x = minX
+    y = minY
+    width = maxX - minX
+    height = maxY - minY
+  }
   switch (nv) {
     case ColorType.lineGradient:
       lineGradientForm.value.positions = [x, y, width + x, height + y]

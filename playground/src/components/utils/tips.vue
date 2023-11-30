@@ -7,7 +7,7 @@ const props = withDefaults(defineProps<{
 
 <template>
   <a
-    :href="props.to" target="_blank" rel="noopener noreferrer"
+    :href="props.to" target="_blank" rel="noopener noreferrer" :title="props.text"
     class="inline-block text-center bg-slate-2 text-gray-500 rounded-full w-3.5 h-3.5 flex items-center justify-center"
   >
     <i class="i-ion:information-outline" />

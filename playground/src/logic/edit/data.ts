@@ -23,6 +23,7 @@ const baseFont: FontConfig = {
   fontWeight: 'normal',
   fontStyle: 'normal',
   lineHeight: 1,
+  letterSpacing: 0,
 }
 const baseShadow: ShadowConfig = {
   shadowColor: '#000000',
@@ -36,7 +37,7 @@ const baseText: PosterBaseText = {
   color: '#000',
   textAlign: 'left',
   textBaseline: 'top',
-  letterSpacing: 1,
+  renderType: 'fill',
   ...baseShadow,
   ...baseDefault,
   width: 80,

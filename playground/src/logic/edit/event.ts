@@ -27,12 +27,16 @@ export function useCurrentChangeJson(posterJson: Ref<DrawJson[]> = ref([])) {
 }
 
 const needSyncChangeColorKeys = ['x', 'y', 'width', 'height'] as const
-export function syncChangeColor<KEY extends keyof DrawJson>(
+const isNeedSyncChangeColorKey = (key: string): key is typeof needSyncChangeColorKeys[number] => needSyncChangeColorKeys.includes(key as any)
+export function syncChangeColor<KEY extends typeof needSyncChangeColorKeys[number]>(
   color: Color,
   item: DrawJson,
   key: KEY,
-  data: DrawJson[KEY],
+  data: number,
 ): Color | undefined {
+  if (item.type === PosterType.line)
+    return
+
   const d = Number(data)
   if (
     !color
@@ -111,10 +115,10 @@ export function useControlJson(posterJson: Ref<DrawJson[]> = ref([])) {
     posterJson.value.splice(index, 1)
   }
 
-  function changeJson<KEY extends keyof DrawJson>(index: number, key: KEY, data: DrawJson[KEY]): DrawJson {
+  function changeJson(index: number, key: string, data: any): DrawJson {
     // when change x or y ..., sync to change color
     const d = Number(data)
-    if (needSyncChangeColorKeys.includes(key as any) && !Number.isNaN(d)) {
+    if (isNeedSyncChangeColorKey(key) && !Number.isNaN(d)) {
       const item = posterJson.value[index]
       if (item.type === PosterType.text) {
         item.color = syncChangeColor(item.color as Color, item, key, data)
@@ -128,6 +132,8 @@ export function useControlJson(posterJson: Ref<DrawJson[]> = ref([])) {
       }
     }
 
+    // eslint-disable-next-line ts/ban-ts-comment
+    // @ts-expect-error
     posterJson.value[index][key] = data
 
     return posterJson.value[index]
@@ -224,11 +230,11 @@ export function canvasBindEvent(
 
       const offsetX = e.offsetX - x
       const offsetY = e.offsetY - y
-
-      changeJson(index, 'x', item.x + offsetX)
-      changeJson(index, 'y', item.y + offsetY)
-
-      console.log(unref(CURRENT_CHANGE_JSON)?.x, unref(CURRENT_CHANGE_JSON)?.y)
+      if (item.type !== PosterType.line) {
+        changeJson(index, 'x', item.x + offsetX)
+        changeJson(index, 'y', item.y + offsetY)
+        console.log(item.x, item.y)
+      }
     }
 
     const upHandler = () => {

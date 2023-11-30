@@ -12,6 +12,7 @@ declare module 'vue' {
     EditRight: typeof import('./src/components/edit-right.vue')['default']
     EditSelected: typeof import('./src/components/edit-selected.vue')['default']
     ElementBase: typeof import('./src/components/element/base.vue')['default']
+    ElementFont: typeof import('./src/components/element/font.vue')['default']
     ElementImage: typeof import('./src/components/element/image.vue')['default']
     ElementImageShow: typeof import('./src/components/element/imageShow.vue')['default']
     ElementLine: typeof import('./src/components/element/line.vue')['default']
