@@ -58,7 +58,7 @@ async function renderBaseText(ctx: PosterContext, options: PosterText) {
 
 async function renderText(ctx: PosterContext, options: PosterText) {
   const { context, config } = ctx
-  const { text, textBaseline, textAlign, letterSpacing } = options || {}
+  const { textBaseline, textAlign, letterSpacing } = options || {}
   const font = transformFont(options, config.defaultFont)
 
   context.font = font
@@ -71,7 +71,7 @@ async function renderText(ctx: PosterContext, options: PosterText) {
     return
   }
 
-  const texts = ctx.sliceText({ text, font: options, letterSpacing })
+  const texts = ctx.sliceText(options)
   await renderLetterSpacingText(texts, ctx, options)
 }
 
@@ -82,7 +82,6 @@ async function renderEllipsisText(ctx: PosterContext, options: PosterText) {
   const {
     x,
     y,
-    text,
     color = defaultColor,
     width,
     height,
@@ -97,11 +96,7 @@ async function renderEllipsisText(ctx: PosterContext, options: PosterText) {
 
   const font = transformFont(options, config.defaultFont)
   const lineCount = Math.floor(height / (fontSize * lineHeight))
-  const texts = ctx.sliceText({
-    text,
-    font: options,
-    letterSpacing,
-  })
+  const texts = ctx.sliceText(options)
   const lines = generateEllipsisTextLines(
     texts,
     width,
@@ -123,7 +118,7 @@ async function renderEllipsisText(ctx: PosterContext, options: PosterText) {
     }
     else {
       let currentX = x
-      const lineTexts = ctx.sliceText({ text: line, font: options, letterSpacing })
+      const lineTexts = ctx.sliceText({ ...options, text: line })
       lineTexts.forEach((item) => {
         promises.push(renderBaseText(ctx, { ...options, text: item.text, x: currentX, y: drawY }))
         currentX += item.width

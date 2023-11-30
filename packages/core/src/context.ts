@@ -54,10 +54,10 @@ export function createContext(config: _Config, canvasEl?: CanvasElement): Poster
    * Sliced text content
    */
   function sliceText(data: Omit<CalcTextLineCountOptions, 'width' | 'height' | 'direction'>) {
-    const { text = '', font = {}, letterSpacing = 0 } = data
+    const { text = '', letterSpacing = 0 } = data
 
-    const fontConfig = Object.assign({}, config.defaultFont, font)
-    const textFont = transformFont(font, config.defaultFont)
+    const fontConfig = Object.assign({}, config.defaultFont, data)
+    const textFont = transformFont(fontConfig, config.defaultFont)
     const lineHeight = fontConfig.fontSize * (data.lineHeight || fontConfig.lineHeight)
 
     const texts: SliceText[] = []

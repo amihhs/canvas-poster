@@ -6,6 +6,7 @@ export const DEFAULT_FONT: Required<FontConfig> = {
   fontWeight: 'normal',
   fontStyle: 'normal',
   lineHeight: 1,
+  letterSpacing: 0,
 }
 export const DEFAULT_CONFIG: _Config = {
   debug: false,

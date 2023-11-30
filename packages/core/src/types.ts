@@ -48,6 +48,8 @@ export interface FontConfig {
   fontStyle?: 'normal' | 'italic' | 'oblique'
   // default: 1.2
   lineHeight?: number
+  // default: 0
+  letterSpacing?: number
 }
 
 export type Color = ColorString | CanvasGradient | CanvasPattern | CustomColor
@@ -99,13 +101,11 @@ export interface PatternColor {
   repeat?: 'repeat' | 'repeat-x' | 'repeat-y' | 'no-repeat'
 }
 
-export interface CalcTextLineCountOptions {
+export interface CalcTextLineCountOptions extends FontConfig {
   text: string
-  font: FontConfig
   width?: number
   height?: number
   lineHeight?: number
-  letterSpacing?: number
   direction?: 'horizontal' | 'vertical'
 }
 export interface SliceText {
@@ -163,7 +163,7 @@ export interface PosterRect extends PosterBaseRect {
   opacity?: number
 }
 
-export interface PosterLine extends PosterBaseJson {
+export interface PosterLine {
   type: PosterType.line
   // [x, y][]
   paths: ([number, number, 'moveTo'] | [number, number])[]
@@ -189,7 +189,6 @@ export interface PosterImage extends PosterBaseRect {
 export interface PosterBaseText extends PosterBaseJson, ShadowConfig, FontConfig {
   text: string
   color?: Color
-  letterSpacing?: number
   // 这是一个实验中的功能， default: 'inherit'
   // direction?: 'ltr' | 'rtl' | 'inherit'
   // default: 'left', direction 属性会对此属性产生影响, https://developer.mozilla.org/zh-CN/docs/Web/API/CanvasRenderingContext2D/textAlign
