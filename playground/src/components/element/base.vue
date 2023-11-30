@@ -1,11 +1,12 @@
 <script setup lang='ts'>
+import { PosterType } from '@amihhs/canvas-poster'
 import { CURRENT_CHANGE_JSON } from '@/logic/edit/const'
 
 const { t } = useI18n()
 </script>
 
 <template>
-  <template v-if="CURRENT_CHANGE_JSON">
+  <template v-if="CURRENT_CHANGE_JSON && CURRENT_CHANGE_JSON.type !== PosterType.line">
     <div class="form-item">
       <label class="label">X</label>
       <input v-model="CURRENT_CHANGE_JSON.x" class="input">
