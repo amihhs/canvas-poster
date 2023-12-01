@@ -3,6 +3,7 @@ import { PosterType } from '@amihhs/canvas-poster'
 import { CURRENT_CHANGE_JSON } from '@/logic/edit/const'
 
 const { t } = useI18n()
+
 function addDash() {
   if (!CURRENT_CHANGE_JSON.value || CURRENT_CHANGE_JSON.value.type !== PosterType.line)
     return
@@ -12,12 +13,14 @@ function addDash() {
 
   CURRENT_CHANGE_JSON.value.lineDash.push(0)
 }
+
 function removeDash(index: number) {
   if (!CURRENT_CHANGE_JSON.value || CURRENT_CHANGE_JSON.value.type !== PosterType.line)
     return
 
   CURRENT_CHANGE_JSON.value.lineDash?.splice(index, 1)
 }
+
 function addPath(index = -1) {
   if (!CURRENT_CHANGE_JSON.value || CURRENT_CHANGE_JSON.value.type !== PosterType.line)
     return
@@ -27,6 +30,7 @@ function addPath(index = -1) {
 
   CURRENT_CHANGE_JSON.value.paths.splice(index + 1, 0, [0, 0])
 }
+
 function removePath(index: number) {
   if (!CURRENT_CHANGE_JSON.value || CURRENT_CHANGE_JSON.value.type !== PosterType.line)
     return
@@ -83,10 +87,7 @@ function updatePath(index: number, value: boolean) {
         {{ t('setting.paths') }}
       </div>
       <template v-if="CURRENT_CHANGE_JSON.paths">
-        <div
-          v-for="_, i in CURRENT_CHANGE_JSON.paths" :key="i"
-          class="flex items-center gap-3"
-        >
+        <div v-for="_, i in CURRENT_CHANGE_JSON.paths" :key="i" class="flex items-center gap-3 mb-3">
           <input v-model.number="CURRENT_CHANGE_JSON.paths[i][0]" title="x" class="input w-18">
           <input v-model.number="CURRENT_CHANGE_JSON.paths[i][1]" title="y" class="input w-18">
           <Switch
