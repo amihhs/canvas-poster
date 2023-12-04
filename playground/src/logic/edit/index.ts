@@ -59,7 +59,13 @@ function transformPresetValue(posterJson: DrawJson[]) {
           continue
 
         // @ts-expect-error eslint-disable-line ts/ban-ts-comment
-        item[key] = parsePresetValue({ key, value: item[key], json: oldJson })
+        const value = parsePresetValue({ value: item[key], json: oldJson })
+        if (Number.isNaN(Number(value)))
+        // @ts-expect-error eslint-disable-line ts/ban-ts-comment
+          item[key] = value
+        else
+        // @ts-expect-error eslint-disable-line ts/ban-ts-comment
+          item[key] = Number(value)
       }
     }
 

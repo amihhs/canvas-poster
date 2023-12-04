@@ -105,11 +105,11 @@ export function canvasBindEvent(
       const offsetX = e.offsetX - x
       const offsetY = e.offsetY - y
       if (item.type !== PosterType.line) {
-        const itemX = parseInput(item.x) + offsetX
-        const itemY = parseInput(item.y) + offsetY
+        const itemX = calculatePresetValue(item.x, offsetX, '+')
+        const itemY = calculatePresetValue(item.y, offsetY, '+')
         changeJson(index, 'x', itemX)
         changeJson(index, 'y', itemY)
-        console.log(item.x, item.y)
+        // console.log(item.x, item.y)
       }
     }
 

@@ -1,6 +1,6 @@
 // @unocss-includes
-
 import { PosterType } from '@amihhs/canvas-poster'
+import type { DrawJson } from '@/interface'
 
 function setStyle(el: HTMLElement, style: Partial<CSSStyleDeclaration>) {
   el.setAttribute(
@@ -85,26 +85,34 @@ function rectSelected() {
   return divEl
 }
 
-function updateRectStyle(offsetLeft: number, offsetTop: number) {
+function updateRectStyle(data: {
+  offsetLeft: number
+  offsetTop: number
+  json: DrawJson[]
+}) {
   if (
     !CURRENT_CHANGE_JSON.value
     || CURRENT_CHANGE_JSON.value.type === PosterType.line
   )
     return
-
+  const { offsetLeft, offsetTop, json } = data
   const offset = CURRENT_CHANGE_JSON.value.type === PosterType.text ? 4 : 0
 
+  const [width, height, x, y] = parsePresetBaseValue(CURRENT_CHANGE_JSON.value, json)
+
   const style = {
-    left: `${CURRENT_CHANGE_JSON.value.x + offsetLeft - offset}px`,
-    top: `${CURRENT_CHANGE_JSON.value.y + offsetTop - offset}px`,
-    width: `${CURRENT_CHANGE_JSON.value.width + offset * 2}px`,
-    height: `${CURRENT_CHANGE_JSON.value.height + offset * 2}px`,
+    left: `${x + offsetLeft - offset}px`,
+    top: `${y + offsetTop - offset}px`,
+    width: `${width + offset * 2}px`,
+    height: `${height + offset * 2}px`,
   }
 
   return style
 }
 
 function canvasSelectedController() {
+  const json = inject<Ref<DrawJson[]>>(CONTENT_JSON_KEY, ref([]))
+
   const canvasRef = inject<Ref<HTMLCanvasElement | null>>(CANVAS_EL_KEY, ref(null))
   const selectedRef = ref<HTMLDivElement | null>(null)
   const elements = ref<HTMLDivElement[] | null>(null)
@@ -120,13 +128,16 @@ function canvasSelectedController() {
     destroy()
     if (!CURRENT_CHANGE_JSON.value || !canvasRef.value || !selectedRef)
       return
-
     if (CURRENT_CHANGE_JSON.value.type !== PosterType.line) {
       const divEl = rectSelected()
       if (!divEl)
         return
 
-      const style = updateRectStyle(canvasRef.value.offsetLeft, canvasRef.value.offsetTop)
+      const style = updateRectStyle({
+        offsetLeft: canvasRef.value.offsetLeft,
+        offsetTop: canvasRef.value.offsetTop,
+        json: unref(json),
+      })
       style && setStyle(divEl, style)
 
       elements.value = [divEl]

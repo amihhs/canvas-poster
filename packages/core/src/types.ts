@@ -127,6 +127,10 @@ export type PosterGenerateDrawFn = (context: PosterContext) => Promise<PosterJso
  * 画布元素
  */
 export type PosterJson = PosterImage | PosterText | PosterRect | PosterLine
+
+//  e.g. OmitJson<PosterJson, PosterType.rect> will get PosterImage | PosterText | PosterLine
+export type OmitJson<T extends PosterJson, TYPE extends PosterType> = T extends { type: TYPE } ? never : T
+
 /**
  * 画布元素基础类型
  */
