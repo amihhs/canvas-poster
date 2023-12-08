@@ -22,6 +22,11 @@ const menuTabs = [
     type: 'add',
     icon: 'i-carbon:add',
   },
+  {
+    title: 'Output',
+    type: 'output',
+    icon: 'i-fluent:stream-output-20-filled',
+  },
 ] as const
 
 const rightState = ref<RightState>('base')
@@ -31,7 +36,7 @@ function changeRightState(state: RightState) {
 watch(CURRENT_CHANGE_JSON, () => {
   if (unref(CURRENT_CHANGE_JSON))
     rightState.value = 'edit'
-})
+}, { deep: true })
 </script>
 
 <template>
@@ -51,6 +56,7 @@ watch(CURRENT_CHANGE_JSON, () => {
     <SettingContents v-else-if="rightState === 'list'" class="h-[calc(95vh-4.75rem)]" />
     <SettingAdd v-else-if="rightState === 'add'" />
     <SettingEdit v-else-if="rightState === 'edit'" />
+    <SettingOutput v-else-if="rightState === 'output'" />
   </div>
 </template>
 

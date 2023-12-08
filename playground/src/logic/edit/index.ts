@@ -47,36 +47,6 @@ async function transformSource(posterJson: DrawJson[]) {
   return json
 }
 
-function transformPresetValue(posterJson: DrawJson[]) {
-  const oldJson = unref(posterJson) || []
-  const json: DrawJson[] = []
-
-  for (let i = 0; i < oldJson.length; i++) {
-    const item = JSON.parse(JSON.stringify(oldJson[i])) as DrawJson
-    if (item.type !== PosterType.line) {
-      for (const key of Object.keys(item)) {
-        if (['type', 'id'].includes(key))
-          continue
-
-        // @ts-expect-error eslint-disable-line ts/ban-ts-comment
-        const value = parsePresetValue({ value: item[key], json: oldJson })
-        if (Number.isNaN(Number(value)))
-        // @ts-expect-error eslint-disable-line ts/ban-ts-comment
-          item[key] = value
-        else
-        // @ts-expect-error eslint-disable-line ts/ban-ts-comment
-          item[key] = Number(value)
-      }
-    }
-
-    json.push(item)
-  }
-
-  // eslint-disable-next-line no-console
-  console.log('transformPresetValue', json, oldJson)
-  return json
-}
-
 export function posterDetailHandler() {
   const route = useRoute()
   const state = ref<'init' | 'null' | 'success'>('init')
@@ -95,9 +65,7 @@ export function posterDetailHandler() {
     if (state.value === 'success')
       updatePosterHandler()
     // transform source url
-    let json = await transformSource(posterJson.value)
-
-    json = transformPresetValue(json)
+    const json = await transformSource(posterJson.value)
 
     render(context, json)
     updateDrawContext(unref(posterJson) || [])

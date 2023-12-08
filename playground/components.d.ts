@@ -28,6 +28,7 @@ declare module 'vue' {
     SettingBase: typeof import('./src/components/setting/base.vue')['default']
     SettingContents: typeof import('./src/components/setting/contents/index.vue')['default']
     SettingEdit: typeof import('./src/components/setting/edit.vue')['default']
+    SettingOutput: typeof import('./src/components/setting/output.vue')['default']
     Switch: typeof import('./src/components/switch.vue')['default']
     UtilsColor: typeof import('./src/components/utils/color.vue')['default']
     UtilsColorLineGradient: typeof import('./src/components/utils/color-line-gradient.vue')['default']

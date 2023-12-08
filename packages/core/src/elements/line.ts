@@ -3,6 +3,8 @@ import { parseColor } from './shared'
 
 export async function drawLine(ctx: PosterContext, options: PosterLine) {
   const { paths = [], color, lineWidth = 1, lineDash = [] } = options || {}
+  if (paths.length === 0)
+    return
 
   const { context } = ctx
 

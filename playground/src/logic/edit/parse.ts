@@ -1,10 +1,12 @@
 /* eslint-disable ts/ban-ts-comment */
-import type { OmitJson, PosterType } from '@amihhs/canvas-poster'
+import { PosterType } from '@amihhs/canvas-poster'
+import type { OmitJson } from '@amihhs/canvas-poster'
 import type { DrawJson } from '@/interface'
 
 type SplitValue = string
 type SplitItem = string | SplitItem[]
 
+const OPERATOR = ['+', '-', '*', '/', '%', '**'] as const
 const SPLIT_REG = /(\(.*\)|\+|\-|\*|\/|%|\*\*)/
 const GROUP_REG = /\((.*)\)/
 const OPERATOR_REG = /(\+|\-|\*|\/|%|\*\*)/
@@ -92,7 +94,6 @@ function parseValue(data: {
   // eslint-disable-next-line no-new-func
   const fn = new Function(`return ${values.join(' ')}`)
   const result = fn() as string
-
   return `${result}`
 }
 
@@ -124,7 +125,7 @@ function splitValue(value: string): SplitItem[] {
  * @param json DrawJson[]
  * @returns [width, height, x, y]
  */
-export function parsePresetBaseValue(item: OmitJson<DrawJson, PosterType.line>, json: DrawJson[]) {
+function parsePresetBaseValue(item: OmitJson<DrawJson, PosterType.line>, json: DrawJson[]) {
   const keys = ['width', 'height', 'x', 'y'] as const
   const values: number[] = []
   for (const key of keys) {
@@ -140,28 +141,9 @@ export function parsePresetBaseValue(item: OmitJson<DrawJson, PosterType.line>, 
   return values
 }
 
-export function getNumberByOperator(operator: string, number1: number, number2: number) {
-  switch (operator) {
-    case '+':
-      return number1 + number2
-    case '-':
-      return number1 - number2
-    case '*':
-      return number1 * number2
-    case '/':
-      return number1 / number2
-    case '%':
-      return number1 % number2
-    case '**':
-      return number1 ** number2
-    default:
-      return number1
-  }
-}
-
-export const OPERATOR = ['+', '-', '*', '/', '%', '**'] as const
-export function calculatePresetValue(value: string | number, number: number, operator: typeof OPERATOR[number]) {
-  if (typeof value === 'number') {
+function calculatePresetValue(value: string | number, number: number, operator: typeof OPERATOR[number]) {
+  if (typeof value === 'number' || !Number.isNaN(Number(value))) {
+    value = Number(value)
     switch (operator) {
       case '+':
         return value + number
@@ -252,8 +234,37 @@ export function calculatePresetValue(value: string | number, number: number, ope
   return newList.join(' ')
 }
 
+function transformPresetValue(posterJson: DrawJson[]) {
+  const oldJson = unref(posterJson) || []
+  const json: DrawJson[] = []
+
+  for (let i = 0; i < oldJson.length; i++) {
+    const item = JSON.parse(JSON.stringify(oldJson[i])) as DrawJson
+    if (item.type !== PosterType.line) {
+      for (const key of Object.keys(item)) {
+        if (['type', 'id'].includes(key))
+          continue
+
+        // @ts-expect-error eslint-disable-line ts/ban-ts-comment
+        const value = parsePresetValue({ value: item[key], json: oldJson })
+        // @ts-expect-error eslint-disable-line ts/ban-ts-comment
+        item[key] = Number.isNaN(Number(value)) ? value : Number(value)
+      }
+    }
+
+    json.push(item)
+  }
+
+  // eslint-disable-next-line no-console
+  console.log('transformPresetValue', json, oldJson)
+  return json
+}
+
 export {
-  parsePresetValue,
+  calculatePresetValue,
   parseValue,
   splitValue,
+  parsePresetValue,
+  parsePresetBaseValue,
+  transformPresetValue,
 }

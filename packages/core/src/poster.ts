@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import type { PosterConfig, PosterContext, PosterJson } from './types'
 import { PosterType } from './types'
-import { isFunction } from './utils'
+import { formatItem, isFunction } from './utils'
 import { resolveConfig } from './config'
 import { createContext } from './context'
 import { drawImage, drawLine, drawRect, drawText } from './elements'
@@ -21,7 +21,8 @@ export function createPoster(options: PosterConfig = {}, canvasEl?: HTMLCanvasEl
     const temp = createContext(config)
 
     for (const i of content) {
-      const item = i
+      const item = formatItem(i)
+
       if (item.type === PosterType.image)
         await drawImage(temp, item)
 

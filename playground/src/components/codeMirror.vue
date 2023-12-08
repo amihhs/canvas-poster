@@ -1,28 +1,67 @@
 <script setup lang='ts'>
 import { EditorView, basicSetup } from 'codemirror'
+import { EditorState } from '@codemirror/state'
 import { json, jsonParseLinter } from '@codemirror/lang-json'
+import { javascript } from '@codemirror/lang-javascript'
+import beautify from 'js-beautify'
+
+const props = withDefaults(defineProps<{
+  language?: 'json' | 'javascript'
+  languageConfig?: Record<string, any>
+  disabled?: boolean
+}>(), {
+  language: 'json',
+  disabled: false,
+})
+
+const LANGUAGE_PARSE = {
+  json: jsonParseLinter(),
+  javascript: null,
+}
+const LANGUAGE_EXT = computed(() => {
+  switch (props.language) {
+    case 'json':
+      return [json()]
+    case 'javascript':
+      return [javascript(props.languageConfig)]
+  }
+})
 
 const modelValue = defineModel<string>()
-
 const errorMessage = ref<string>('')
 const editorRef = ref<HTMLDivElement | null>(null)
+const editor = shallowRef<EditorView | null>(null)
 
-const theme = EditorView.theme({
-  '&': { height: '17rem' },
-  '.cm-scroller': { overflow: 'auto' },
-  '.cm-content': { height: 'auto' },
-  '.cm-line': { 'font-family': 'ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace' },
+const theme = computed(() => {
+  return {
+    '&': { height: '17rem' },
+    '.cm-scroller': { overflow: 'auto' },
+    '.cm-content': { height: 'auto' },
+    '.cm-line': { 'font-family': 'ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace' },
+  }
 })
 
-const editor = new EditorView({
-  doc: modelValue.value,
-  extensions: [
-    basicSetup,
-    theme,
-    json(),
-    updateListener(),
-  ],
-})
+function createEditorViewTheme(...args: Parameters<typeof EditorView.theme>) {
+  return EditorView.theme(...args)
+}
+function createEditorView() {
+  const languageExt = LANGUAGE_EXT.value
+  const config = {
+    doc: modelValue.value,
+    extensions: [
+      basicSetup,
+      createEditorViewTheme(theme.value),
+      updateListener(),
+      ...languageExt,
+    ],
+  }
+  if (props.disabled)
+    config.extensions.push(EditorState.readOnly.of(true))
+
+  const editor = new EditorView(config)
+  return editor
+}
+
 function updateListener() {
   return EditorView.updateListener.of(() => {
     const content = getContent()
@@ -31,16 +70,22 @@ function updateListener() {
   })
 }
 function getContent() {
-  const parse = jsonParseLinter()
-  const e = parse(editor)
-  if (e.length) {
-    errorMessage.value = e.map(e => e.message).join('\n')
+  if (!editor.value)
     return
+
+  const parse = LANGUAGE_PARSE[props.language]
+  if (parse && typeof parse === 'function') {
+    const e = parse(editor.value)
+    if (e.length) {
+      errorMessage.value = e.map(e => e.message).join('\n')
+      return
+    }
   }
+
   errorMessage.value = ''
 
   try {
-    return editor.state.doc.toString()
+    return editor.value.state.doc.toString()
   }
   catch (e: any) {
     errorMessage.value = e.message
@@ -48,23 +93,42 @@ function getContent() {
   }
 }
 
+function _format(content?: string) {
+  if (!editor.value)
+    return
+
+  content = content || getContent() || ''
+
+  const js = beautify.js(content, {
+    indent_size: 2,
+    brace_style: 'collapse',
+    break_chained_methods: false,
+  })
+  editor.value.dispatch({
+    changes: {
+      from: 0,
+      to: editor.value.state.doc.length,
+      insert: js,
+    },
+  })
+}
+
 watch(editorRef, () => {
   if (!editorRef.value)
     return
-  editorRef.value.appendChild(editor.dom)
-})
+  if (!editor.value)
+    editor.value = createEditorView()
+
+  editorRef.value.appendChild(editor.value.dom)
+  _format()
+}, { immediate: true })
 
 watch(modelValue, (v) => {
-  if (v === getContent())
+  if (v === getContent() || !editor.value)
     return
-  editor.state.update({
-    changes: {
-      from: 0,
-      to: editor.state.doc.length,
-      insert: v,
-    },
-  })
-})
+
+  _format(v)
+}, { immediate: true })
 </script>
 
 <template>
@@ -73,4 +137,7 @@ watch(modelValue, (v) => {
       {{ errorMessage }}
     </p>
   </div>
+  <button @click="_format()">
+    Format
+  </button>
 </template>

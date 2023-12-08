@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { ColorType, PosterType } from '@amihhs/canvas-poster'
+import { ColorType, PosterType, isCustomColor } from '@amihhs/canvas-poster'
 import type { Color, ConicGradientColor, LineGradientColor, PatternColor, PureColor, RadialGradientColor } from '@amihhs/canvas-poster'
 import type { RangeColor } from '@/interface'
 import { CURRENT_CHANGE_JSON } from '@/logic/edit/const'
@@ -63,11 +63,7 @@ const patternForm = ref<PatternColor>({
 })
 
 function format() {
-  if (
-    typeof modelValue.value === 'string'
-      || modelValue.value instanceof CanvasGradient
-      || modelValue.value instanceof CanvasPattern
-  ) {
+  if (!isCustomColor(modelValue.value)) {
     modelValue.value = {
       type: ColorType.pure,
       color: typeof modelValue.value === 'string' ? modelValue.value : '#000000',
@@ -76,68 +72,77 @@ function format() {
 
   switch (modelValue.value.type) {
     case ColorType.pure:
-      pureForm.value = modelValue.value
+      pureForm.value = { ...modelValue.value }
       break
     case ColorType.lineGradient:
-      lineGradientForm.value = modelValue.value
+      lineGradientForm.value = { ...modelValue.value }
       break
     case ColorType.conicGradient:
-      conicGradientForm.value = modelValue.value
+      conicGradientForm.value = { ...modelValue.value }
       break
     case ColorType.radialGradient:
-      radialGradientForm.value = modelValue.value
+      radialGradientForm.value = { ...modelValue.value }
       break
     case ColorType.pattern:
-      patternForm.value = modelValue.value
+      patternForm.value = { ...modelValue.value }
       break
   }
-
-  if (!colorType.value)
-    colorType.value = modelValue.value.type
 }
-watch(colorType, (nv, ov) => {
-  if (!colorType.value)
-    format()
-
-  if (!ov || !CURRENT_CHANGE_JSON.value)
+watch(modelValue, (nv, ov) => {
+  if (JSON.stringify(nv) === JSON.stringify(ov))
+    return
+  if (!CURRENT_CHANGE_JSON.value)
     return
 
-  let x = 0
-  let y = 0
-  let width = 0
-  let height = 0
+  format()
+  if (!isCustomColor(modelValue.value))
+    return
 
-  if (CURRENT_CHANGE_JSON.value.type !== PosterType.line) {
-    x = CURRENT_CHANGE_JSON.value.x
-    y = CURRENT_CHANGE_JSON.value.y
-    width = CURRENT_CHANGE_JSON.value.width
-    height = CURRENT_CHANGE_JSON.value.height
+  const needInit = (colorType.value && modelValue.value.type !== colorType.value)
+    || (!colorType.value && !modelValue.value.type)
+    || (ov && isCustomColor(ov) && ov.type !== colorType.value)
+
+  if (needInit) {
+    let x = 0
+    let y = 0
+    let width = 0
+    let height = 0
+
+    if (CURRENT_CHANGE_JSON.value.type !== PosterType.line) {
+      x = Number(CURRENT_CHANGE_JSON.value.x)
+      y = Number(CURRENT_CHANGE_JSON.value.y)
+      width = Number(CURRENT_CHANGE_JSON.value.width)
+      height = Number(CURRENT_CHANGE_JSON.value.height)
+    }
+    else {
+      const xList = CURRENT_CHANGE_JSON.value.paths?.map(v => v[0]) ?? []
+      const yList = CURRENT_CHANGE_JSON.value.paths?.map(v => v[1]) ?? []
+      const maxX = Math.max(...xList)
+      const minX = Math.min(...xList)
+      const maxY = Math.max(...yList)
+      const minY = Math.min(...yList)
+      x = minX
+      y = minY
+      width = maxX - minX
+      height = maxY - minY
+    }
+    switch (modelValue.value.type) {
+      case ColorType.lineGradient:
+        lineGradientForm.value.positions = [x, y, width + x, height + y]
+        break
+      case ColorType.conicGradient:
+        conicGradientForm.value.positions = [360, x + width / 2, y + height / 2]
+        break
+      case ColorType.radialGradient:
+        radialGradientForm.value.positions = [x, y, width, width + x, height + y, height]
+        break
+    }
   }
-  else {
-    const xList = CURRENT_CHANGE_JSON.value.paths?.map(v => v[0]) ?? []
-    const yList = CURRENT_CHANGE_JSON.value.paths?.map(v => v[1]) ?? []
-    const maxX = Math.max(...xList)
-    const minX = Math.min(...xList)
-    const maxY = Math.max(...yList)
-    const minY = Math.min(...yList)
-    x = minX
-    y = minY
-    width = maxX - minX
-    height = maxY - minY
-  }
-  switch (nv) {
-    case ColorType.lineGradient:
-      lineGradientForm.value.positions = [x, y, width + x, height + y]
-      break
-    case ColorType.conicGradient:
-      conicGradientForm.value.positions = [360, x + width / 2, y + height / 2]
-      break
-    case ColorType.radialGradient:
-      radialGradientForm.value.positions = [x, y, width, width + x, height + y, height]
-      break
-  }
+  if (modelValue.value.type !== colorType.value)
+    colorType.value = modelValue.value.type
 }, { immediate: true })
-watchEffect(() => {
+
+watch([colorType, pureForm, lineGradientForm, conicGradientForm, radialGradientForm, patternForm], () => {
   switch (colorType.value) {
     case ColorType.pure:
       modelValue.value = pureForm.value
@@ -161,7 +166,7 @@ watchEffect(() => {
       modelValue.value = patternForm.value
       break
   }
-})
+}, { deep: true })
 </script>
 
 <template>

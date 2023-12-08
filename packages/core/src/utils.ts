@@ -1,5 +1,5 @@
 import { PosterType } from './types'
-import type { CanvasContext, Color, CustomColor, FontConfig, PosterImage } from './types'
+import type { CanvasContext, Color, CustomColor, FontConfig, PosterImage, PosterJson } from './types'
 
 export const isFunction = (val: unknown): val is (...args: any[]) => any => typeof val === 'function'
 
@@ -263,4 +263,35 @@ export async function analysisColor(data: ImageData): Promise<[number, number, n
 
     resolve([avgR, avgG, avgB])
   })
+}
+
+export function formatItem(item: PosterJson): PosterJson {
+  const isNaN = Number.isNaN
+  if (item.type === PosterType.line) {
+    return {
+      ...item,
+      paths: item.paths.map((value, index) => {
+        const [x, y, _] = value
+        if (isNaN(Number(x)) || isNaN(Number(y)))
+          throw new Error(`paths: ${x} or ${y} is not a number, index: ${index}`)
+        if (value.length === 3 && _)
+          return [Number(x), Number(y), _]
+        else
+          return [Number(x), Number(y)]
+      }),
+    }
+  }
+  else {
+    const { x, y, width, height } = item
+    if (isNaN(Number(x)) || isNaN(Number(y)) || isNaN(Number(width)) || isNaN(Number(height)))
+      throw new Error(`x or y or width or height is not a number`)
+
+    return {
+      ...item,
+      x: Number(x),
+      y: Number(y),
+      width: Number(width),
+      height: Number(height),
+    }
+  }
 }

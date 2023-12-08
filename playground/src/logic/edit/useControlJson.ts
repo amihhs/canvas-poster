@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid'
-import { ColorType, PosterType, isCustomColor } from '@amihhs/canvas-poster'
+import { ColorType, PosterType, formatItem, isCustomColor } from '@amihhs/canvas-poster'
 import type { Color, PosterJson } from '@amihhs/canvas-poster'
 import type { DrawJson } from '@/interface'
 
@@ -9,10 +9,12 @@ export function syncChangeColor<KEY extends typeof BASE_CONFIG_KEY[number]>(
   key: KEY,
   data: number,
 ): Color | undefined {
-  if (item.type === PosterType.line)
+  const itemJson = formatItem(item)
+  if (itemJson.type === PosterType.line)
     return
 
   const d = Number(data)
+  const { x, y } = itemJson
   if (
     !color
     || Number.isNaN(d)
@@ -24,12 +26,12 @@ export function syncChangeColor<KEY extends typeof BASE_CONFIG_KEY[number]>(
   switch (color.type) {
     case ColorType.lineGradient:{
       if (key === 'x') {
-        const offset = d - item.x
+        const offset = d - x
         color.positions[0] = color.positions[0] + offset
         color.positions[2] = color.positions[2] + offset
       }
       else if (key === 'y') {
-        const offset = d - item.y
+        const offset = d - y
         color.positions[1] = color.positions[1] + offset
         color.positions[3] = color.positions[3] + offset
       }
@@ -44,16 +46,16 @@ export function syncChangeColor<KEY extends typeof BASE_CONFIG_KEY[number]>(
     }
     case ColorType.conicGradient:{
       if (key === 'x') {
-        const offset = d - item.x
+        const offset = d - x
         color.positions[1] = color.positions[1] + offset
       }
       else if (key === 'y') {
-        const offset = d - item.y
+        const offset = d - y
         color.positions[2] = color.positions[2] + offset
       }
       else if (key === 'width' || key === 'height') {
         const index = key === 'width' ? 1 : 2
-        const offset = d - (item[key] as number)
+        const offset = d - (itemJson[key] as number)
         color.positions[index] = color.positions[index] + offset / 2
       }
 
@@ -61,18 +63,18 @@ export function syncChangeColor<KEY extends typeof BASE_CONFIG_KEY[number]>(
     }
     case ColorType.radialGradient: {
       if (key === 'x') {
-        const offset = d - item.x
+        const offset = d - x
         color.positions[0] = color.positions[0] + offset
         color.positions[3] = color.positions[3] + offset
       }
       else if (key === 'y') {
-        const offset = d - item.y
+        const offset = d - y
         color.positions[1] = color.positions[1] + offset
         color.positions[4] = color.positions[4] + offset
       }
       else if (key === 'width' || key === 'height') {
         const index = key === 'width' ? [0, 3] : [2, 4]
-        const offset = d - (item[key] as number)
+        const offset = d - (itemJson[key] as number)
         index.forEach((i) => {
           color.positions[i] = color.positions[i] + offset / 2
         })

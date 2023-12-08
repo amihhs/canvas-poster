@@ -1,5 +1,5 @@
 import type { PosterLine } from '@amihhs/canvas-poster'
-import { PosterType } from '@amihhs/canvas-poster'
+import { PosterType, formatItem } from '@amihhs/canvas-poster'
 import type { CanvasControlLocationJson, DrawJson } from '@/interface'
 import { toBase64 } from '@/shared'
 
@@ -43,14 +43,15 @@ export function findCurrentHoveItemKey(
     if (EXCLUDE_SELECT_ID.includes(data.id))
       continue
 
-    if (data.type !== PosterType.line) {
-      const [itemW, itemH, itemX, itemY] = parsePresetBaseValue(data, Array.from(unref(DRAW_CONTEXT_MAP).values()))
+    const item = formatItem(data)
+    if (item.type !== PosterType.line) {
+      const { x: itemX, y: itemY, width: itemW, height: itemH } = item
 
       if (x > itemX && x < itemX + itemW && y > itemY && y < itemY + itemH)
         items.push({ key: _, index: data.sort })
     }
 
-    else if (data.type === PosterType.line && isPointInLine(data.paths, x, y)) {
+    else if (item.type === PosterType.line && isPointInLine(item.paths, x, y)) {
       items.push({ key: _, index: data.sort })
     }
   }

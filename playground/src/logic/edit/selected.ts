@@ -71,7 +71,7 @@ function rectSelected() {
   if (!CURRENT_CHANGE_JSON.value || CURRENT_CHANGE_JSON.value.type === PosterType.line)
     return
   const divEl = document.createElement('div')
-  divEl.className = 'absolute bg-teal-6 bg-opacity-40 select-none pointer-events-none border-1 border-teal-6'
+  divEl.className = 'absolute select-none pointer-events-none border-1 border-teal-6'
 
   const span = ['-left-1', '-top-1', '-right-1', '-bottom-1']
   for (const index in span) {
@@ -95,16 +95,16 @@ function updateRectStyle(data: {
     || CURRENT_CHANGE_JSON.value.type === PosterType.line
   )
     return
-  const { offsetLeft, offsetTop, json } = data
+  const { offsetLeft, offsetTop } = data
   const offset = CURRENT_CHANGE_JSON.value.type === PosterType.text ? 4 : 0
 
-  const [width, height, x, y] = parsePresetBaseValue(CURRENT_CHANGE_JSON.value, json)
+  const { width, height, x, y } = CURRENT_CHANGE_JSON.value
 
   const style = {
-    left: `${x + offsetLeft - offset}px`,
-    top: `${y + offsetTop - offset}px`,
-    width: `${width + offset * 2}px`,
-    height: `${height + offset * 2}px`,
+    left: `${Number(x) + offsetLeft - offset}px`,
+    top: `${Number(y) + offsetTop - offset}px`,
+    width: `${Number(width) + offset * 2}px`,
+    height: `${Number(height) + offset * 2}px`,
   }
 
   return style

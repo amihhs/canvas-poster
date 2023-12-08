@@ -75,8 +75,6 @@ export function canvasBindEvent(
       item = selectItem(key || '') || null
       CURRENT_CHANGE_JSON.value = posterJson.value[index]
 
-      console.log('down', posterJson, CURRENT_CHANGE_JSON.value)
-
       const id = CURRENT_CHANGE_JSON.value.id
       if (EXCLUDE_SELECT_ID.includes(id)) {
         CURRENT_CHANGE_JSON.value = null
